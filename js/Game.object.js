@@ -6,7 +6,7 @@
 var Game = {
 	MINIMUM_CELL_SIZE:10,
 	MINIMUM_COLUMN_COUNT:20,
-	TICK_DELAY:50,
+	TICK_DELAY:250,
 	MAZES_PER_SIZE:2,
 	init:function(data)
 	{
@@ -37,14 +37,12 @@ var Game = {
 	},
 	addMaze:function(maze)
 	{
-		this.mazes.push(maze);
 		this.maze = maze;
 		return this;
 	},
 	addParty:function(party)
 	{
 		this.party = party;
-		this.parties.push(party);
 		return this;
 	},
 	calculateMazeCellSizes:function()
@@ -82,15 +80,12 @@ var Game = {
 		this.mazesAtThisCellCount++;
 		this.mazesExplored++;
 		
-		$('#mazesExplored').text(this.mazesExplored);
-		
 		this.addMaze(new Maze(
 				this.mazeElement,
 				this.columnCounts[this.columnSizeIndex],
 				this.columnCounts[this.columnSizeIndex]
 		).draw());
 		this.party.chooseNewMaze(this.maze);
-		$('#mazeCells').text(this.maze.getCellCount());
 	},
 	start:function()
 	{
@@ -103,6 +98,10 @@ var Game = {
 	},
 	tick:function()
 	{
+		$('#mazesExplored').text(this.mazesExplored);
+		$('#mazeCells').text(this.maze.getCellCount());
+		$('#partyAction').text(this.party.action);
+		
 		if(!this.processTicks)
 		{
 			return;
@@ -110,7 +109,6 @@ var Game = {
 		if(this.party.exploring)
 		{
 			this.party.processTick();
-			$('#partyAction').text(this.party.action);
 		}
 		else
 		{
