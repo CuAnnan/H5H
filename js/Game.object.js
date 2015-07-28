@@ -5,25 +5,29 @@
 
 var Game = {
 	MINIMUM_CELL_SIZE:10,
-	MINIMUM_CELL_COUNT:10,
+	MINIMUM_COLUMN_COUNT:20,
+	TICK_DELAY:50,
+	MAZES_PER_SIZE:2,
 	init:function(data)
 	{
 		this.mazeElement = data.mazeElement;
 		this.parties = [];
 		this.mazes = [];
+		this.mazesAtThisCellCount = 0;
+		this.columnSizeIndex = 0;
 		this.columnCounts = [];
+		this.mazesExplored = 0;
 		if(!this.load())
 		{
 			this.newGame();
 		}
 		this.calculateMazeCellSizes();
 		this.ticking = true;
-		this.tick();
 		return this;
 	},
 	newGame:function()
 	{
-		this.addMaze(new Maze(this.mazeElement, this.MINIMUM_CELL_COUNT, this.MINIMUM_CELL_COUNT).draw());
+		this.addMaze(new Maze(this.mazeElement, this.MINIMUM_COLUMN_COUNT, this.MINIMUM_COLUMN_COUNT).draw());
 		this.addParty(new Party().chooseNewMaze(this.maze));	
 	},
 	load:function()
@@ -49,7 +53,7 @@ var Game = {
 			// using this only as a typing shortcut
 			mazeWidth = this.maze.width,
 			//
-			cellCount = this.MINIMUM_CELL_COUNT;
+			cellCount = this.MINIMUM_COLUMN_COUNT;
 			
 		while(calculating)
 		{
@@ -64,14 +68,53 @@ var Game = {
 			}
 		}
 	},
+	createNewMaze:function()
+	{
+		if(this.mazesAtThisCellCount++ >= this.MAZES_PER_SIZE)
+		{
+			this.mazesAtThisCellCount = 0;
+			this.columnSizeIndex++;
+			if(this.columnSizeIndex >= this.columnCounts.length)
+			{
+				this.columnSizeIndex = this.columnCounts.length - 1;
+			}
+		}
+		this.mazesAtThisCellCount++;
+		this.mazesExplored++;
+		
+		$('#mazesExplored').text(this.mazesExplored);
+		
+		this.addMaze(new Maze(
+				this.mazeElement,
+				this.columnCounts[this.columnSizeIndex],
+				this.columnCounts[this.columnSizeIndex]
+		).draw());
+		this.party.chooseNewMaze(this.maze);
+		$('#mazeCells').text(this.maze.getCellCount());
+	},
+	start:function()
+	{
+		this.processTicks = true;
+		this.tick();
+	},
+	stop:function()
+	{
+		this.processTicks = false;
+	},
 	tick:function()
 	{
-		for(var i in this.parties)
+		if(!this.processTicks)
 		{
-			if(this.parties[i].exploring)
-			{
-				this.parties[i].processTick();
-			}
+			return;
+		}
+		if(this.party.exploring)
+		{
+			this.party.processTick();
+			$('#partyAction').text(this.party.action);
+		}
+		else
+		{
+			this.createNewMaze();
 		}
 		var self = this;
 		setTimeout(
@@ -79,7 +122,7 @@ var Game = {
 			{
 				self.tick()
 			},
-			250
+			this.TICK_DELAY
 		);
 	},
 	randomArrayElement:function(array)

@@ -15,4 +15,18 @@ $(function()
 		.height(maxHeight > 740 ? maxHeight : 740);
 	
 	Game.init({mazeElement:document.getElementById('mapOverlay')});
+	$('#exploreButton').click(function(){
+		var self = $(this);
+		var value = self.val();
+		if(value === 'Explore')
+		{
+			Game.start();
+			self.val('Stop');
+		}
+		else
+		{
+			Game.stop();
+			self.val('Explore');
+		}
+	});
 });

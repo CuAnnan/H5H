@@ -29,6 +29,7 @@ Maze.prototype.deferredConstructor = function(elem, cols, rows, options)
 	 * Build the SVG container
 	 */
 	this.svgNode = SVGHelper.createElement('svg');
+	SVGHelper.emptyElement(elem);
 	elem.appendChild(this.svgNode);
 	this.element = SVGHelper.createElement('g');
 	this.svgNode.appendChild(this.element);
@@ -438,4 +439,9 @@ Maze.prototype.isFullyExplored = function()
 Maze.prototype.hasUnvisitedCells = function()
 {
 	return !this.isFullyExplored();
+};
+
+Maze.prototype.getCellCount = function()
+{
+	return this.cols * this.rows;
 };
