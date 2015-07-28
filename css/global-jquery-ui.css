@@ -1,0 +1,30 @@
+.ui-widget-overlay
+{
+	background-color: gray;
+	opacity: 0.25;
+}
+
+.ui-dialog
+{
+	background-color: white;
+	border: 1px solid black;
+	padding: 0px;
+}
+
+#merit-modal-form
+{
+	background-color: white;
+	border-bottom: 1px solid black;
+}
+
+.ui-dialog-titlebar
+{
+	background-color: lightgray;
+	border-bottom: 1px solid black;;
+}
+
+.ui-dialog-buttonpane
+{
+	border-top: 1px solid black;
+	text-align: center !important;
+}

@@ -1,0 +1,29 @@
+/*
+This code remains the intellectual property of Éamonn "Wing" Kearns
+*/
+/* 
+    Created on : 17-Jul-2015, 04:08:56
+    Author     : Wing
+*/
+
+#gameUI
+{
+	position: relative;
+	border: 1px solid black;
+}
+
+#mapOverlay
+{
+	position: absolute;
+	border: 1px solid black;
+	right:  10px;
+	top: 10px;
+	height: 720px;
+	width:  720px;
+}
+
+
+#footer
+{
+	clear: left;
+}
