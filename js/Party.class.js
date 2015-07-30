@@ -50,6 +50,7 @@ function Party(heroes)
 Party.prototype.chooseNewMaze = function(maze)
 {
 	this.exploring = true;
+	this.action = 'Searching for exit';
 	this.endPointFound = false;
 	this.svgElement = null;
 	this.route = [];
