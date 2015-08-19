@@ -5,7 +5,37 @@ var SVGHelper = SVGHelper?SVGHelper:{};
  */
 function Party(heroes)
 {
+	// used for the interval
+	this.processTicks = false;
+	this.tickTime = 1000;
+	this.tickTimeExponent = 0.99;
+	
+	// xp stuff;
+	this.xp = 0;
+	this.level = 1;
+	this.xpToLevel = 100;
+	this.levelStep = 100;
+	this.explorationXP = 1;
+	
+	/**
+	 * Party modes.
+	 */
+	this.modes = {speedRun:'speedRun', fullExplore:'fullExplore'};
+	this.mode = this.modes.fullExplore;
+	
+	/**
+	 * The action being taken by the party
+	 */
+	this.actions = {
+		exit:'Searching for exit',
+		fullExplore:'Exploring maze fully',
+		returnToExit:'Returning to maze exit',
+		idle:'Idling'
+	};
+	this.action = this.actions.exit;
+	
 	this.heroes = heroes;
+
 	/**
 	 * {Cell} The cell the party is currently exploring.
 	 */
@@ -41,16 +71,12 @@ function Party(heroes)
 	 * The route being taken in exploring.
 	 */
 	this.exposeRoute;
-	/**
-	 * The action being taken by the party
-	 */
-	this.action = 'Searching for exit';
 }
 
 Party.prototype.chooseNewMaze = function(maze)
 {
 	this.exploring = true;
-	this.action = 'Searching for exit';
+	this.action = this.actions.exit;
 	this.endPointFound = false;
 	this.svgElement = null;
 	this.route = [];
@@ -123,7 +149,7 @@ Party.prototype.searchForEndPoint = function()
 		// we have an unvisited neighbour for the current cell.
 		// We should choose the first one from the list and visit that one.
 		var newCell = unvisitedNeighbours.pop();
-		newCell.visit();
+		this.visitCell(newCell);
 		// add that cell to the route list.
 		this.route.push(newCell);
 		this.currentCell = newCell;
@@ -132,6 +158,7 @@ Party.prototype.searchForEndPoint = function()
 			this.route.push(this.currentCell);
 			this.endPointFound = true;
 			this.buildBackTrack();
+			this.addXP(Math.pow(Game.mazesExplored + 1, 2));
 		}
 	}
 	else
@@ -156,30 +183,47 @@ Party.prototype.searchForEndPoint = function()
 	
 };
 
+Party.prototype.visitCell = function(cell)
+{
+	cell.visit();
+	this.addXP(this.explorationXP);
+};
+
+Party.prototype.addXP = function(amount)
+{
+	this.xp += amount;
+	while(this.xp >= this.xpToLevel)
+	{
+		this.level ++;
+		this.xpToLevel += this.level * this.levelStep;
+		this.tickTime = Math.floor(Math.max(10, this.tickTime * this.tickTimeExponent));
+	}
+};
+
 Party.prototype.exposeMap = function()
 {
-	this.action = 'Exploring maze fully';
+	this.action = this.actions.fullExplore;
 	var unvisitedNeighbours = this.currentCell.getUnvisitedNeighbours();
 	if(unvisitedNeighbours.length > 0)
 	{
 		// this part works exactly as the searchForEndPoint method
 		// except it adds to the exposeRoute method instead of the route method
 		var newCell = unvisitedNeighbours.pop();
-		newCell.visit();
+		this.visitCell(newCell);
+		
 		// add that cell to the route list.
 		this.exposeRoute.push(newCell);
 		this.currentCell = newCell;
 	}
-	else if(this.maze.isFullyExplored())
+	else if(this.maze.isFullyExplored() || this.mode === this.modes.speedRun)
 	{
 		if(this.currentCell.isEndPoint)
 		{
-			this.action = 'Maze fully explored';
 			this.exploring = false;
 		}
 		else
 		{
-			this.action = 'Returning to maze exit';
+			this.action = this.actions.returnToExit;
 			// the maze is currently explored so we just backtrack across the expose route until we're
 			// back at the starting cell
 			this.currentCell = this.exposeRoute.pop();
@@ -216,8 +260,13 @@ Party.prototype.buildBackTrack = function()
 	this.reversedRouteIterator = this.route.slice().reverse().entries();
 };
 
-Party.prototype.processTick = function()
+Party.prototype.tick = function()
 {
+	if(!this.processTicks)
+	{
+		return;
+	}
+	
 	if(this.exploring)
 	{
 		this.explore();
@@ -226,4 +275,21 @@ Party.prototype.processTick = function()
 	{
 		
 	}
+	var self = this;
+	window.setTimeout(function(){self.tick();}, this.tickTime);
+};
+
+Party.prototype.start = function()
+{
+	if(this.processTicks)
+	{
+		return;
+	}
+	this.processTicks = true;
+	this.tick();
+};
+
+Party.prototype.stop = function()
+{
+	this.processTicks = false;
 };

@@ -20,8 +20,13 @@ function Maze(elem, cols, rows, options)
 }
 
 /**
- * the functionality of the constructor is deferred to here, to allow the prototypical inheritance
+ *  * the functionality of the constructor is deferred to here, to allow the prototypical inheritance
  * to work easily. 
+ * @param {type} elem
+ * @param {type} cols
+ * @param {type} rows
+ * @param {type} options
+ * @returns {undefined}
  */
 Maze.prototype.deferredConstructor = function(elem, cols, rows, options)
 {
@@ -62,6 +67,25 @@ Maze.prototype.deferredConstructor = function(elem, cols, rows, options)
 			this[fieldName](options[i]);
 		}
 	}
+};
+
+Maze.prototype.toJSON = function()
+{
+	var json = {
+		width:this.width, height:this.height,
+		rows:this.rows, cols: this.cols,
+		cells:[]
+	};
+	
+	for(var i in this.cells)
+	{
+		json.cells.push([]);
+		for(var j in this.cells[i])
+		{
+			json.cells[i][j] = this.cells[i][j].toJSON();
+		}
+	}
+	return json;
 };
 
 /**
@@ -136,7 +160,7 @@ Maze.prototype.emptyElementNode = function()
  */
 Maze.prototype.build = function()
 {
-	var currentCell = this.visitCell(0, 0);
+	var currentCell = this.visitCell(1, 1);
 	var visitedCells = 0;
 	var cells = new Array();
 	cells.push(currentCell);
@@ -267,7 +291,6 @@ Maze.prototype.setStartAndEndPoints = function()
 	}
 	this.startPoint = startPoint;
 	
-	
 	j = this.rows-1; i = this.cols-1;
 	while(!endPoint)
 	{
@@ -337,7 +360,7 @@ Maze.prototype.calculateDerived = function()
 		}
 		this.cells.push(cellRow);
 	}
-}
+};
 
 Maze.prototype.visitCell = function(x, y)
 {
@@ -371,18 +394,15 @@ Maze.prototype.pickRandomAdjacentCell = function(cell)
 			this.value[direction].tested = true;
 			return this.value[direction];
 		}
-	}
-	
+	};
 	
 	var adjacentCell = null;
 	var dir = null;
 	while(!adjacentCell && directions.length > 0)
 	{
 		dir=directions.pickRandom();
-		
 		var newX = cell.x+dir.x;
 		var newY = cell.y+dir.y;
-		
 		if(newX>=0 && newX < this.rows && newY >=0 && newY < this.cols)
 		{
 			var testCell = this.cells[newY][newX];

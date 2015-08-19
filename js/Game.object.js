@@ -7,7 +7,7 @@ var Game = {
 	MINIMUM_CELL_SIZE:10,
 	MINIMUM_COLUMN_COUNT:5,
 	TICK_DELAY:500,
-	MAZES_PER_SIZE:2,
+	MAZES_PER_SIZE:5,
 	init:function(data)
 	{
 		this.mazeElement = data.mazeElement;
@@ -101,16 +101,17 @@ var Game = {
 		$('#mazesExplored').text(this.mazesExplored);
 		$('#mazeCells').text(this.maze.getCellCount());
 		$('#partyAction').text(this.party.action);
+		$('#partyLevel').text(this.party.level);
+		$('#partyXp').text(this.party.xp);
+		$('#partyXpToLevel').text(this.party.xpToLevel);
 		
 		if(!this.processTicks)
 		{
+			this.party.stop();
 			return;
 		}
-		if(this.party.exploring)
-		{
-			this.party.processTick();
-		}
-		else
+		this.party.start();
+		if(!this.party.exploring)
 		{
 			this.createNewMaze();
 		}
@@ -118,7 +119,7 @@ var Game = {
 		setTimeout(
 			function()
 			{
-				self.tick()
+				self.tick();
 			},
 			this.TICK_DELAY
 		);
