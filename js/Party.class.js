@@ -13,8 +13,8 @@ function Party(heroes)
 	// xp stuff;
 	this.xp = 0;
 	this.level = 1;
-	this.xpToLevel = 100;
-	this.levelStep = 100;
+	this.xpToLevel = 10;
+	this.levelStep = 10;
 	this.explorationXP = 1;
 	
 	/**

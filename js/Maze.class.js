@@ -446,6 +446,19 @@ Maze.prototype.draw = function()
 	return this;
 };
 
+Maze.prototype.expose = function()
+{
+	for(var i = 0; i < this.cols; i++)
+	{
+		for(var j = 0; j < this.rows; j++)
+		{
+			var cell = this.cells[i][j];
+			cell.show();
+		}
+	}
+	
+};
+
 Maze.prototype.getStartingCell = function()
 {
 	return this.startPoint;
