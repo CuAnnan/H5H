@@ -15,12 +15,20 @@ function Cell(x, y, mazeReference)
 	this.visited = false;
 	this.isStartPoint = false;
 	this.isEndPoint = false;
-	this.connectionsKnown = false;
-	this.connectsToEndCell = false;
 	this.connections = {};
 	this.monsters = [];
 	this.svgGroup = null;
 }
+
+Cell.prototype.toJSON = function()
+{
+	var cellAsJSON = {
+		walls:this.walls,
+		x:this.x,y:this.y,
+		visited:this.visited
+	};
+	return cellAsJSON;
+};
 
 Cell.prototype.setWallColor = function(wallColor)
 {
@@ -234,16 +242,10 @@ Cell.prototype.connectCellTo = function(direction, otherCell)
 
 Cell.prototype.connectsToEnd = function()
 {
-	if(this.connectionsKnown)
-	{
-		return this.connectsToEndCell;
-	}
-	
 	for(var i in this.connections)
 	{
 		if(this.connections[i].endPoint)
 		{
-			this.connectsToEndCell = true;
 			return i;
 		}
 	}
