@@ -154,6 +154,10 @@ Cell.prototype.getSvgElement = function()
 		)
 	);
 	
+	if(this.visited)
+	{
+		this.show();
+	}
 	return group;
 };
 
