@@ -196,7 +196,8 @@ Party.prototype.addXP = function(amount)
 	{
 		this.level ++;
 		this.xpToLevel += this.level * this.levelStep;
-		this.tickTime = Math.floor(Math.max(10, this.tickTime * this.tickTimeExponent));
+		this.tickTime *= this.tickTimeExponent;
+		this.tickTime = Math.floor(Math.max(10, this.tickTime));
 	}
 };
 
