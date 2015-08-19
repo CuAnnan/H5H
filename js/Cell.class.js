@@ -146,9 +146,9 @@ Cell.prototype.getSvgElement = function()
 		SVGHelper.createElement(
 			'rect',
 			{
-				x:this.mazeReference.wallThickness, y:this.mazeReference.wallThickness, 
-				width: this.mazeReference.cellWidth-this.mazeReference.wallThickness, 
-				height:this.mazeReference.cellHeight-this.mazeReference.wallThickness,
+				x:0, y:0, 
+				width: this.mazeReference.cellWidth, 
+				height:this.mazeReference.cellHeight,
 				stroke: 'black', fill:'black'
 			}
 		)
