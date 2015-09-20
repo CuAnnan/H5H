@@ -36,4 +36,12 @@ PartyMemberAttribute.prototype.setGrowthFactor = function(type, value)
 	}
 	this.growthFactors[type] = value;
 	return this;
-}
+};
+
+PartyMemberAttribute.prototype.toJSON = function()
+{
+	return {
+		base: this.base, growthFactor: this.growthFactor, type: this.type,
+		current:this.current, growthFactors:this.growthFactors, increases:this.increases
+	};
+};

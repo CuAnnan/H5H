@@ -82,11 +82,11 @@ Cell.prototype.removeWall = function(direction)
 
 Cell.prototype.isDeadEnd = function()
 {
-	if(this.walls.count == 3)
+	if(this.walls.count === 3)
 	{
 		for(var i in this.walls)
 		{
-			if(i != 'count' && !this.walls[i])
+			if(i !== 'count' && !this.walls[i])
 			{
 				return i;
 			}
@@ -97,7 +97,7 @@ Cell.prototype.isDeadEnd = function()
 
 Cell.prototype.isEmpty = function()
 {
-	return (this.walls.count==4);
+	return (this.walls.count===4);
 };
 
 Cell.prototype.determineBGColor = function()
@@ -111,7 +111,7 @@ Cell.prototype.determineBGColor = function()
 	{
 		color = this.mazeReference.endPointColor;
 	}
-	else if(this.walls.count == 4)
+	else if(this.walls.count === 4)
 	{
 		color = this.mazeReference.wallColor;
 	}

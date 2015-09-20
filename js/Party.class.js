@@ -209,8 +209,7 @@ Party.prototype.searchForEndPoint = function ()
 
 Party.prototype.visitCell = function (cell)
 {
-	cell.visit();
-	this.addXP(1);
+	this.addXP(cell.visit().getXPValue());
 };
 
 Party.prototype.addXP = function (amount)
@@ -344,4 +343,20 @@ Party.prototype.start = function ()
 Party.prototype.stop = function ()
 {
 	this.processTicks = false;
+};
+
+Party.prototype.toJSON = function()
+{
+	var partyJSON = {
+		members:[],
+		currentCell:this.currentCell.toJSON(),
+		route:[],
+		action:this.action
+	};
+	
+	for(var i in this.members)
+	{
+		partyJSON.memebers[i] = this.members[i].toJSON();
+	}
+	return partyJSON;
 };

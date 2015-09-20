@@ -57,10 +57,10 @@ Maze.prototype.deferredConstructor = function(elem, options)
 	
 	this.setRows(rows).setCols(cols).setWidth().setHeight();
 	
-	
 	// take the options and use them to set values.
 	for(var i in options)
 	{
+		// && i !== 'width' && i !== 'height'
 		if(i !== 'elem' && i !== 'cols' && i !== 'rows')
 		{
 			var methodName = 'set'+i.ucFirst();
@@ -71,6 +71,7 @@ Maze.prototype.deferredConstructor = function(elem, options)
 			}
 		}
 	}
+	
 	
 	/**
 	 * Because seedrandom is completely deterministic, this allows us to save the 
@@ -92,7 +93,6 @@ Maze.prototype.toJSON = function(populate)
 {
 	var json = {
 		seed:btoa(this.rng.seed),
-		width:this.width, height:this.height,
 		rows:this.rows, cols: this.cols
 	};
 	
@@ -120,7 +120,9 @@ Maze.prototype.setWidth = function(width)
 {
 	if(!width)
 	{
+		console.log(window.getComputedStyle(this.svgNode.parentNode).width);
 		width = parseInt(window.getComputedStyle(this.svgNode.parentNode).width);
+		console.log(width);
 	}
 	
 	this.initialised = false;
@@ -134,6 +136,7 @@ Maze.prototype.setHeight = function(height)
 {
 	if(!height)
 	{
+		console.log(window.getComputedStyle(this.svgNode.parentNode).height);
 		height = parseInt(window.getComputedStyle(this.svgNode.parentNode).height);
 	}
 	
@@ -373,13 +376,16 @@ Maze.prototype.calculateDerived = function()
 		
 	this.leftPadding = parseInt(paddingVertical/2);
 	this.topPadding = parseInt(paddingHorizontal/2);
+	this.allCells = [];
 	
 	for(var j = 0; j < this.cols; j++)
 	{
 		var cellRow = new Array();
 		for(var i = 0; i < this.rows; i++)
 		{
-			cellRow.push(new Cell(i, j, this));
+			var cell = new Cell(i, j, this);
+			cellRow.push(cell);
+			this.allCells.push(cell);
 		}
 		this.cells.push(cellRow);
 	}

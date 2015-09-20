@@ -3,6 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+var Game = Game?Game:{};
+
 (
 function()
 {
@@ -11,7 +13,7 @@ function()
 			"Aaron", "Adam", "Adrian", "Aiden", "Alan", "Albert", "Andrew", "Barry","Benjamin", "Bernard", "Bill", "Blake",
 			"Bobby", "Bradley", "Brendan", "Brian", "Bruce", "Carl", "Charles", "Chris", "Cole", "Connor", "Corey", "Craig",
 			"Daniel", "David", "Dean", "Dennis", "Derek", "Devin", "Dominic", "Donald", "Douglas", "Dustin", "Dylan", "Earl",
-			"Earnest", "Edgar", "Edward", "Edwin", "Eoghan", "Erich", "Ethan", "Eugene", "Evan", "Ewan", "Floyd", "Frank",
+			"Earnest", "Edgar", "Edward", "Edwin", "Eoghan", "Epdez", "Erich", "Ethan", "Eugene", "Evan", "Ewan", "Floyd", "Frank",
 			"Fred", "Gabriel", "Garreth", "Gary", "Gavin", "George", "Gerald", "Gilbert", "Glen", "Gordon", "Gregory", "Harold",
 			"Harry", "Henry", "Herman", "Howard", "Hunter", "Ian", "Isaac", "Ivan", "Jack", "Jacob", "James", "Jason", "Jeff",
 			"Jeffrey", "Jeremy", "Jerry", "Jim", "Joe", "Joel", "John", "Jonathan", "Joseph", "Joshua", "Justin", "Keith",
@@ -22,7 +24,7 @@ function()
 			"Stephen", "Terrance", "Theodore", "Thomas", "Timothy", "Travis", "Trevor", "Troy", "Tyler", "Vernon", "Victor",
 			"Vincent", "Walter", "Warren", "Wayne", "Wesley", "William", "Zachary"
 		]
-	}
+	};
 	
 	function PartyMember(data)
 	{
@@ -116,6 +118,20 @@ function()
 	{
 		$('.memberClass', this.element).text(this.class);
 		$('.memberLevel', this.element).text(this.level);
+	};
+	
+	PartyMember.prototype.toJSON = function()
+	{
+		var data = {
+			name:this.name, class:this.class,
+			baseXPModifier:this.baseXPModifier, baseXPModifierPerLevel: this.baseXPModifierPerLevel,
+			xp:this.xp, xpToLevel:this.xpToLevel, levelStep:this.levelStep, level:this.level,
+			attributes:[]
+		};
+		for(var i in this.attributes)
+		{
+			data[i] = this.attributes[i].toJSON();
+		}
 	};
 	
 	window.PartyMember = PartyMember;
