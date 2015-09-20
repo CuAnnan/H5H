@@ -3,32 +3,28 @@ var SVGHelper = SVGHelper?SVGHelper:{};
 /**
  * 
  * @param {DOMElement}		elem	The node into which to embed the SVG.
- * @param {Int}				cols	The number of columns in the map
- * @param {Int}				rows	The number of rows in the map
  * @param {ObjectLiteral}	options	An obhect literal containing any of the optional values that get
  *									defaulted if not provided (width, height, 
  * @returns {Maze}
  */
-function Maze(elem, cols, rows, options)
+function Maze(elem, options)
 {
-	if(arguments.length == 0)
+	if(arguments.length === 0)
 	{
 		// this is for the inheritance, I guess
 		return;
 	}
-	this.deferredConstructor(elem, cols, rows, options);
+	this.deferredConstructor(elem, options);
 }
 
 /**
  *  * the functionality of the constructor is deferred to here, to allow the prototypical inheritance
  * to work easily. 
- * @param {type} elem
- * @param {type} cols
- * @param {type} rows
- * @param {type} options
- * @returns {undefined}
+ * @param {DOMElement} elem
+ * @param {ObjectLiteral} options
+ * @returns {Maze|Maze.prototype}
  */
-Maze.prototype.deferredConstructor = function(elem, cols, rows, options)
+Maze.prototype.deferredConstructor = function(elem, options)
 {
 	/*
 	 * Build the SVG container
@@ -38,6 +34,10 @@ Maze.prototype.deferredConstructor = function(elem, cols, rows, options)
 	elem.appendChild(this.svgNode);
 	this.element = SVGHelper.createElement('g');
 	this.svgNode.appendChild(this.element);
+	
+	var rows = options.rows?options.rows:Game.MINIMUM_COLUMN_COUNT;
+	var cols = options.cols?options.cols:rows;
+	
 	/*
 	 * Default the instance variables
 	 */
@@ -55,34 +55,52 @@ Maze.prototype.deferredConstructor = function(elem, cols, rows, options)
 	this.visitedCellsCount = 0;
 	this.totalCellCount = rows * cols;
 	
-	// set the variables that need to be set for the system to work.
-	this.setCols(cols).setRows(rows).setWidth().setHeight();	
-
+	this.setRows(rows).setCols(cols).setWidth().setHeight();
+	
+	
 	// take the options and use them to set values.
 	for(var i in options)
 	{
-		if(i !== 'elem')
+		if(i !== 'elem' && i !== 'cols' && i !== 'rows')
 		{
-			var fieldName = 'set'+i.ucFirst();
-			this[fieldName](options[i]);
+			var methodName = 'set'+i.ucFirst();
+			var method = this[methodName];
+			if(method && typeof method == 'function')
+			{
+				this[methodName](options[i]);
+			}
 		}
 	}
+	
+	if(options.seed)
+	{
+		this.rng = new Math.seedrandom(atob(options.seed));
+	}
+	else
+	{
+		this.rng = new Math.seedrandom();
+	}
+	return this;
 };
 
-Maze.prototype.toJSON = function()
+Maze.prototype.toJSON = function(populate)
 {
 	var json = {
+		seed:btoa(this.rng.seed),
 		width:this.width, height:this.height,
-		rows:this.rows, cols: this.cols,
-		cells:[]
+		rows:this.rows, cols: this.cols
 	};
 	
-	for(var i in this.cells)
+	if(populate)
 	{
-		json.cells.push([]);
-		for(var j in this.cells[i])
+		json.cells = [];
+		for(var i in this.cells)
 		{
-			json.cells[i][j] = this.cells[i][j].toJSON();
+			json.cells.push([]);
+			for(var j in this.cells[i])
+			{
+				json.cells[i][j] = this.cells[i][j].toJSON();
+			}
 		}
 	}
 	return json;
@@ -207,7 +225,7 @@ Maze.prototype.randomizeCells = function(cellList)
 	
 	while(0 !== currentIndex)
 	{
-		var randomIndex = Math.floor(Math.random() * currentIndex);
+		var randomIndex = Math.floor(this.rng() * currentIndex);
 		currentIndex --;
 		
 		var temp = cellList[currentIndex];
@@ -466,7 +484,7 @@ Maze.prototype.getStartingCell = function()
 
 Maze.prototype.isFullyExplored = function()
 {
-	return this.visitedCellsCount == this.totalCellCount;
+	return this.visitedCellsCount === this.totalCellCount;
 };
 
 Maze.prototype.hasUnvisitedCells = function()

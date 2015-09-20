@@ -27,25 +27,65 @@ var Game = {
 	},
 	newGame: function ()
 	{
-		this.addMaze(new Maze(this.mazeElement, this.MINIMUM_COLUMN_COUNT, this.MINIMUM_COLUMN_COUNT).draw());
-		this.addParty(
-			new Party()
-			.chooseNewMaze(this.maze)
-		);
+		// add a new party and build a new map
+		this.addParty();
+		this.createNewMaze();
 	},
 	load: function ()
 	{
-		// this is just a place holder for until I have local storage implemented
-		return false;
+		console.log("Loading game data");
+		var data = localStorage.getItem('saveState');
+		if(!data)
+		{
+			console.log("No save data");
+			return false;
+		}
+		return this.parseSavedData(data);
+	},
+	parseSavedData: function(data)
+	{
+		var json = JSON.parse(atob(data));
+		
+		// haven't written the party saving yet so just add a new party
+		this.addParty();
+		this.loadMapFromJSON(json.currentMaze);
+		
+		return true;	
+	},
+	save: function()
+	{
+		var json = {
+			mazesAtThisCellCount: this.mazesAtThisCellCount - 1,
+			columnSizeIndex:this.columnSizeIndex,
+			currentMaze:this.maze.toJSON()
+		};
+		var jsonString = JSON.stringify(json);
+		localStorage.setItem('saveState', btoa(jsonString));
+	},
+	loadMapFromJSON: function(json)
+	{
+		this.addMaze(
+			new Maze(
+				this.mazeElement,
+				json
+			).draw()
+		);
+		this.party.chooseNewMaze(this.maze);
+		return this;
+	},
+	loadMapFromJSONString: function(jsonString)
+	{
+		return this.loadMapFromJSON(JSON.parse(jsonString));
 	},
 	addMaze: function (maze)
 	{
 		this.maze = maze;
+		
 		return this;
 	},
 	addParty: function (party)
 	{
-		this.party = party;
+		this.party = party?party:new Party();
 		return this;
 	},
 	calculateMazeCellSizes: function ()
@@ -68,6 +108,7 @@ var Game = {
 				calculating = false;
 			}
 		}
+		return this;
 	},
 	createNewMaze: function ()
 	{
@@ -83,21 +124,28 @@ var Game = {
 		this.mazesAtThisCellCount++;
 		this.mazesExplored++;
 
-		this.addMaze(new Maze(
+		this.addMaze(
+			new Maze(
 				this.mazeElement,
-				this.columnCounts[this.columnSizeIndex],
-				this.columnCounts[this.columnSizeIndex]
-				).draw());
+				{
+					cols:this.columnCounts[this.columnSizeIndex],
+					rows:this.columnCounts[this.columnSizeIndex]
+				}
+			).draw()
+		);
 		this.party.chooseNewMaze(this.maze);
+		return this;
 	},
 	start: function ()
 	{
 		this.processTicks = true;
 		this.tick();
+		return this;
 	},
 	stop: function ()
 	{
 		this.processTicks = false;
+		return this;
 	},
 	tick: function ()
 	{
@@ -117,12 +165,12 @@ var Game = {
 		}
 		var self = this;
 		setTimeout(
-				function ()
-				{
-					self.tick();
-				},
-				this.TICK_DELAY
-				);
+			function ()
+			{
+				self.tick();
+			},
+			this.TICK_DELAY
+		);
 	},
 	randomArrayElement: function (array)
 	{
