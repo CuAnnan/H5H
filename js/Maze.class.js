@@ -72,6 +72,11 @@ Maze.prototype.deferredConstructor = function(elem, options)
 		}
 	}
 	
+	/**
+	 * Because seedrandom is completely deterministic, this allows us to save the 
+	 * map by saving the seed only. Every pseudorandom choice made by seedrandom
+	 * will be the same given the seed.
+	 */
 	if(options.seed)
 	{
 		this.rng = new Math.seedrandom(atob(options.seed));
