@@ -16,7 +16,7 @@ function Cell(x, y, mazeReference)
 	this.isStartPoint = false;
 	this.isEndPoint = false;
 	this.connections = {};
-	this.monsters = [];
+	this.monsters = null;
 	this.svgGroup = null;
 }
 
@@ -82,11 +82,11 @@ Cell.prototype.removeWall = function(direction)
 
 Cell.prototype.isDeadEnd = function()
 {
-	if(this.walls.count == 3)
+	if(this.walls.count === 3)
 	{
 		for(var i in this.walls)
 		{
-			if(i != 'count' && !this.walls[i])
+			if(i !== 'count' && !this.walls[i])
 			{
 				return i;
 			}
@@ -97,7 +97,7 @@ Cell.prototype.isDeadEnd = function()
 
 Cell.prototype.isEmpty = function()
 {
-	return (this.walls.count==4);
+	return (this.walls.count===4);
 };
 
 Cell.prototype.determineBGColor = function()
@@ -111,7 +111,7 @@ Cell.prototype.determineBGColor = function()
 	{
 		color = this.mazeReference.endPointColor;
 	}
-	else if(this.walls.count == 4)
+	else if(this.walls.count === 4)
 	{
 		color = this.mazeReference.wallColor;
 	}
@@ -258,8 +258,13 @@ Cell.prototype.connectsToEnd = function()
 
 Cell.prototype.hasMonsters = function()
 {
-	return this.monsters.length > 0;
+	return this.monsters !== null;
 };
+
+Cell.prototype.getMonsters = function()
+{
+	return this.monsters;
+}
 
 /**
  * Get the list of unvisited neighbours for the current cell.
@@ -289,8 +294,17 @@ Cell.prototype.hasUnvisitedNeighbours = function()
 	return unvisitedNeighbours.length > 0;
 };
 
-Cell.prototype.visit = function()
+Cell.prototype.visit = function(party)
 {
+	if(!this.isStartPoint && !this.isEndPoint)
+	{
+		var monsterTest = Math.random();
+		if(monsterTest < this.mazeReference.monsterDensity)
+		{
+			this.monsters = this.mazeReference.monsterFactory.getNewMonsterGroupForParty(party);
+		}
+	}
+
 	if(!this.visited)
 	{
 		this.show();

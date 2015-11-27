@@ -6,6 +6,7 @@ function PartyMemberAttribute(base, growthFactor)
 	this.current = base;
 	this.growthFactors = {'base':this.growthFactor};
 	this.increases = [];
+	this.damage = 0;
 }
 
 PartyMemberAttribute.prototype.increase = function(type)
@@ -14,18 +15,33 @@ PartyMemberAttribute.prototype.increase = function(type)
 	var growthFactor = this.growthFactors[type];
 	var increase = this.current * growthFactor;
 	this.current += increase;
+	this.damage = 0;
 	this.increases.push({"type":type, "growthFactor":growthFactor, "amount":increase});
 	return this;
 };
 
+PartyMemberAttribute.prototype.applyDamage = function(amount)
+{
+	this.damage += amount;
+	if(this.current < this.damage)
+	{
+		this.damage = this.current;
+	}
+};
+
 PartyMemberAttribute.prototype.getValue = function()
 {
-	var value = this.base;
-	for(var i in this.values)
-	{
-		value *= this.values[i].factor;
-	}
-	return value;
+	return Math.floor(this.current);
+};
+
+PartyMemberAttribute.prototype.getRemaining = function()
+{
+	return this.current - this.damage;
+};
+
+PartyMemberAttribute.prototype.renew = function()
+{
+	this.damage = 0;
 };
 
 PartyMemberAttribute.prototype.setGrowthFactor = function(type, value)
@@ -36,4 +52,12 @@ PartyMemberAttribute.prototype.setGrowthFactor = function(type, value)
 	}
 	this.growthFactors[type] = value;
 	return this;
-}
+};
+
+PartyMemberAttribute.prototype.toJSON = function()
+{
+	return {
+		base: this.base, growthFactor: this.growthFactor, type: this.type, damage:this.damage,
+		current:this.current, growthFactors:this.growthFactors, increases:this.increases
+	};
+};

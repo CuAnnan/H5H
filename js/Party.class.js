@@ -5,8 +5,6 @@ var SVGHelper = SVGHelper ? SVGHelper : {};
  */
 function Party(members)
 {
-	// an array to hold the party members
-	this.members = [];
 	if(members)
 	{
 		for(var i in members)
@@ -18,7 +16,8 @@ function Party(members)
 	{
 		this.addMember(new PartyMember());
 	}
-
+	this.setToken('party');
+	
 	// used for the interval
 	this.processTicks = false;
 	this.tickTime = 1000;
@@ -85,6 +84,9 @@ function Party(members)
 	 */
 	this.exposeRoute;
 }
+
+Party.prototype = new AttackerGroup();
+Party.prototype.constructor = Party;
 
 Party.prototype.addMember = function (member)
 {
@@ -209,8 +211,12 @@ Party.prototype.searchForEndPoint = function ()
 
 Party.prototype.visitCell = function (cell)
 {
-	cell.visit();
-	this.addXP(1);
+	cell.visit(this);
+	if(cell.hasMonsters())
+	{
+		Game.combatFeedback("The party stumbles across some monsters", 'feedback');
+		this.combat = new Combat(this,cell.getMonsters());
+	}
 };
 
 Party.prototype.addXP = function (amount)
@@ -235,20 +241,6 @@ Party.prototype.addXP = function (amount)
 	}
 	return this;
 };
-
-/*
-Party.prototype.addXP = function (amount)
-{
-	this.xp += amount;
-	while (this.xp >= this.xpToLevel)
-	{
-		this.level++;
-		this.xpToLevel += this.level * this.levelStep;
-		this.tickTime *= Math.floor(this.tickTimeExponent);
-		this.tickTime = Math.max(10, this.tickTime);
-	}
-};
-*/
 
 Party.prototype.exposeMap = function ()
 {
@@ -316,15 +308,25 @@ Party.prototype.tick = function ()
 	{
 		return;
 	}
-
-	if (this.exploring)
+	
+	if(this.combat)
+	{
+		this.combat.tick();
+		if(this.combat.isFinished())
+		{
+			this.combat = null;
+		}
+	}
+	else if (this.exploring)
 	{
 		this.explore();
+		Game.combatFeedback("Party explores the map a little");
 	}
 	else
 	{
-
+		
 	}
+	
 	var self = this;
 	window.setTimeout(function () {
 		self.tick();
@@ -344,4 +346,20 @@ Party.prototype.start = function ()
 Party.prototype.stop = function ()
 {
 	this.processTicks = false;
+};
+
+Party.prototype.toJSON = function()
+{
+	var partyJSON = {
+		members:[],
+		currentCell:this.currentCell.toJSON(),
+		route:[],
+		action:this.action
+	};
+	
+	for(var i in this.members)
+	{
+		partyJSON.memebers[i] = this.members[i].toJSON();
+	}
+	return partyJSON;
 };
