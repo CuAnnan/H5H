@@ -38,6 +38,10 @@ Maze.prototype.deferredConstructor = function(elem, options)
 	var rows = options.rows?options.rows:Game.MINIMUM_COLUMN_COUNT;
 	var cols = options.cols?options.cols:rows;
 	
+	this.monsterFactory = new MonsterFactory();
+	this.monsterDensity = options.monsterDensity?options.monsterDensity:0.4;
+	
+	
 	/*
 	 * Default the instance variables
 	 */
@@ -120,9 +124,7 @@ Maze.prototype.setWidth = function(width)
 {
 	if(!width)
 	{
-		console.log(window.getComputedStyle(this.svgNode.parentNode).width);
 		width = parseInt(window.getComputedStyle(this.svgNode.parentNode).width);
-		console.log(width);
 	}
 	
 	this.initialised = false;
@@ -136,7 +138,6 @@ Maze.prototype.setHeight = function(height)
 {
 	if(!height)
 	{
-		console.log(window.getComputedStyle(this.svgNode.parentNode).height);
 		height = parseInt(window.getComputedStyle(this.svgNode.parentNode).height);
 	}
 	

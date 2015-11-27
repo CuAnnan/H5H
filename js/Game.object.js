@@ -33,11 +33,9 @@ var Game = {
 	},
 	load: function ()
 	{
-		console.log("Loading game data");
 		var data = localStorage.getItem('saveState');
 		if(!data)
 		{
-			console.log("No save data");
 			return false;
 		}
 		return this.parseSavedData(data);
@@ -175,5 +173,20 @@ var Game = {
 	randomArrayElement: function (array)
 	{
 		return array[Math.floor(Math.random() * array.length)];
+	},
+	combatFeedback:function(textNodes, cssClass)
+	{
+		var html = '';
+		if(typeof textNodes === "string")
+		{
+			textNodes = [textNodes];
+		}
+		for(var i in textNodes)
+		{
+			html += '<div>'+textNodes[i]+'</div>';
+		}
+		var node = $('<div class="'+cssClass+'">'+html+'</div>');
+		var combatFeedbackNode = $('#combat');
+		combatFeedbackNode.append(node).scrollTop(combatFeedbackNode.prop("scrollHeight"));
 	}
 };

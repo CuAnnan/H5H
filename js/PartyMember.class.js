@@ -34,13 +34,7 @@ function()
 		
 		this.baseXPModifier = data.baseXPModifier ? data.baseXPModifier : 1;
 		this.baseXPModifierPerLevel = data.baseXPModifier ? data.baseXPModifier : 1;
-		this.dpsIncreases = data.dpsIncreases ? data.dpsIncreases : {};
-
-		this.attributes = {
-			'hp': new PartyMemberAttribute(100),
-			'dps': new PartyMemberAttribute(10)
-		};
-
+		
 		if (this.baseXPModifierPerLevel * this.baseXPModifier > 1)
 		{
 			throw new {'message': ''};
@@ -49,10 +43,13 @@ function()
 		this.xp = data.xp ? data.xp : 0;
 		this.xpToLevel = 10;
 		this.levelStep = 10;
-		this.level = 1;
 		this.calculateLevel();
 		return this;
 	}
+
+	
+	PartyMember.prototype = new Attacker();
+	PartyMember.prototype.constructor = PartyMember;
 
 
 	PartyMember.prototype.calculateLevel = function ()
@@ -64,25 +61,19 @@ function()
 		return this.level;
 	};
 
-	PartyMember.prototype.getLevel = function ()
-	{
-		return this.level;
-	};
-
 	PartyMember.prototype.levelUp = function ()
 	{
-		for (var i in this.attributes)
-		{
-			this.attributes[i].increase();
-		}
+		this.levelAttributes();
 		this.xpModifier *= this.baseXPModifierPerLevel;
 		this.level++;
 		this.xpToLevel += this.level * this.levelStep;
 		this.updateElement();
+		Game.combatFeedback(this.name + ' reached level '+this.level);
 	};
 
 	PartyMember.prototype.addXP = function (amount)
 	{
+		console.log("Added "+amount+" xp");
 		this.xp += amount * this.xpModifier;
 		this.calculateLevel();
 		return this;
