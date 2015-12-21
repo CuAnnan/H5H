@@ -6,10 +6,13 @@
 var Game = Game?Game:{};
 (function(){
 	var names = {
-		monster:["Tram", "Imp", "Goblin", "Zombie", "Vampire", "Werewolf", "Ghoul"],
+		monster:[
+			"Tram", "Imp", "Goblin", "Zombie", "Vampire", "Werewolf", "Ghoul",
+			"Djin", "Fairy", "Elf", "Pixie", "Spirit", "Ghost", "Sprite"
+		],
 		boss:["Bad Juju", "Scarecrow", "Zapud"],
-		prefix:["Dark", "Angry", "Enraged", "Supreme"],
-		suffix:["Lord", "King", "Prince"]
+		prefix:["Dark", "Angry", "Enraged", "Supreme", "Grand"],
+		suffix:["Lord", "King", "Prince", "Knight", "Queen"]
 	};
 	
 	function MonsterFactory(data)
@@ -72,8 +75,8 @@ var Game = Game?Game:{};
 		this.eliteness = data.eliteness?data.eliteness:0;
 		this.name = data.name?data.name:this.buildRandomName();
 		this.attributes = {
-			'hp': new PartyMemberAttribute(60 + 20 * this.eliteness, 0.06 + 0.2 * this.eliteness),
-			'dps': new PartyMemberAttribute(6 + 2 * this.eliteness, 0.06 + 0.2 * this.eliteness)
+			'hp': new PartyMemberAttribute(60 + 20 * this.eliteness, 0.2 + 0.2 * this.eliteness),
+			'dps': new PartyMemberAttribute(6 + 2 * this.eliteness, 0.6 + 0.2 * this.eliteness)
 		};
 		var level = data.level?data.level:Game.mazesExplored+1;
 		for(var i = 1; i < level; i++)

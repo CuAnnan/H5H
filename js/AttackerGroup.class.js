@@ -32,13 +32,15 @@ AttackerGroup.prototype.takeDamage = function(totalAmount)
 {
 	var memberAmount = Math.ceil(totalAmount/this.members.length);
 	this.hpLeft = 0;
-	this.alive = false;
+	this.totalHp = 0;
+	this.alive = false
 	for(var i in this.members)
 	{
 		this.members[i].takeDamage(memberAmount);
 		if(this.members[i].isAlive())
 		{
 			this.hpLeft += this.members[i].getRemainingHP();
+			this.totalHp += this.members[i].attributes.hp.getValue();
 			this.alive = true;
 		}
 	};
@@ -67,7 +69,7 @@ AttackerGroup.prototype.isAlive = function()
 AttackerGroup.prototype.attack = function(target)
 {
 	target.takeDamage(this.calculateDPS());
-	this.roundText = 'The '+this.token+' do '+parseInt(this.roundDPS)+' damage to '+target.token+'('+parseInt(target.hpLeft)+'hp)';
+	this.roundText = 'The '+this.token+' do '+parseInt(this.roundDPS)+' damage to '+target.token+'('+parseInt(target.hpLeft)+'/'+parseInt(target.totalHp)+'hp)';
 	return this;
 };
 

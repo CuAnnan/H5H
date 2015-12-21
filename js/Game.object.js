@@ -114,6 +114,7 @@ var Game = {
 		{
 			this.mazesAtThisCellCount = 0;
 			this.columnSizeIndex++;
+			this.party.addMember();
 			if (this.columnSizeIndex >= this.columnCounts.length)
 			{
 				this.columnSizeIndex = this.columnCounts.length - 1;
