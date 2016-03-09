@@ -68,7 +68,7 @@ function()
 		this.level++;
 		this.xpToLevel += this.level * this.levelStep;
 		this.updateElement();
-		Game.combatFeedback(this.name + ' reached level '+this.level);
+		Game.combatFeedback(this.name + ' reached level '+this.level, 'party');
 	};
 
 	PartyMember.prototype.addXP = function (amount)
@@ -97,6 +97,22 @@ function()
 			)
 		).append(
 			$('<li/>').append(
+				$('<span/>').text('HP: ')
+			).append(
+				$('<span/>')
+					.text(this.attributes.hp.getRemaining())
+					.addClass('hpRemainingNode')
+					.addClass('partyMemberAttribute')
+			).append(
+				$('<span/>').text('/')
+			).append(
+				$('<span/>')
+					.text(this.attributes.hp.getValue())
+					.addClass('hpTotalNode')
+					.addClass('partyMemberAttribute')
+			)
+		).append(
+			$('<li/>').append(
 				$('<span/>').text('Level: ')
 			).append(
 				$('<span/>').text(this.level).addClass('memberLevel')
@@ -109,6 +125,8 @@ function()
 	{
 		$('.memberClass', this.element).text(this.class);
 		$('.memberLevel', this.element).text(this.level);
+		$('.hpRemainingNode', this.element).text(this.attributes.hp.getRemaining());
+		$('.hpTotalNode', this.element).text(this.attributes.hp.getValue());
 	};
 	
 	PartyMember.prototype.toJSON = function()

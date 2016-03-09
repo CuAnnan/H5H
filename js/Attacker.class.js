@@ -15,6 +15,11 @@ function Attacker()
 Attacker.prototype.takeDamage = function(amount)
 {
 	this.attributes.hp.applyDamage(amount);
+	this.updateElement();
+};
+
+Attacker.prototype.updateElement = function()
+{	
 };
 
 Attacker.prototype.getDPS = function()
