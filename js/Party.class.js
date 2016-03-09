@@ -1,5 +1,6 @@
 "use strict";
 var SVGHelper = SVGHelper ? SVGHelper : {};
+var Game = Game ? Game : {};
 /* 
  * This code remains the intellectual property of Éamonn "Wing" Kearns
  */
@@ -362,4 +363,15 @@ Party.prototype.toJSON = function()
 		partyJSON.memebers[i] = this.members[i].toJSON();
 	}
 	return partyJSON;
+};
+
+Party.prototype.isAlive = function()
+{
+	for(var i in this.members)
+	{
+		if(this.members[i].isAlive())
+		{
+			return true;
+		}
+	}
 };

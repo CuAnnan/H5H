@@ -11,6 +11,19 @@ function Combat(party, monsters)
 	monsters.token = 'monsters';
 	this.ongoing = true;
 	this.rounds = 0;
+	
+	// determine order by defaulting to party as first striker
+	// and only swapping the order if the monsters have explicit first strike
+	if(this.monsters.isFirstAttacker())
+	{
+		this.firstStriker = this.monsters;
+		this.secondStriker = this.party;
+	}
+	else
+	{
+		this.firstStriker = this.party;
+		this.secondStriker = this.monsters;
+	}
 }
 
 Combat.prototype.isOngoing = function()
@@ -20,38 +33,26 @@ Combat.prototype.isOngoing = function()
 
 Combat.prototype.isFinished = function()
 {
-	return !this.ongoing;
-}
+	return !this.isOngoing();
+};
 
 Combat.prototype.tick = function()
 {
-	// determine order by defaulting to party as first striker
-	// and only swapping the order if the monsters have explicit first strike
-	var firstStriker = this.party;
-	var secondStriker = this.monsters;
-	this.rounds++;
-	
-	if(this.monsters.isFirstAttacker())
-	{
-		firstStriker = this.monsters;
-		secondStriker = this.party;
-	}
-	
 	// run attacks
-	firstStriker.attack(secondStriker);
-	if(secondStriker.isAlive())
+	this.firstStriker.attack(this.secondStriker);
+	if(this.secondStriker.isAlive())
 	{
-		secondStriker.attack(firstStriker);
-		this.ongoing = firstStriker.isAlive();
+		this.secondStriker.attack(this.firstStriker);
+		this.ongoing = this.firstStriker.isAlive();
 	}
 	else
 	{
-		secondStriker.roundText = 'The '+secondStriker.token+' died';
+		this.secondStriker.roundText = 'The '+this.secondStriker.token+' died';
 		this.ongoing = false;
 	}
 	
 	Game.combatFeedback(
-		[firstStriker.roundText,secondStriker.roundText]
+		[this.firstStriker.roundText,this.secondStriker.roundText]
 	);
 	
 	if(!this.ongoing)

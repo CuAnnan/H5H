@@ -20,18 +20,21 @@ $(function()
 	var monsterFactory = new MonsterFactory();
 	party = new Party();
 	
-	for(var i = 0; i < 20; i++)
+	while(party.isAlive())
 	{
 		console.log("Starting new combat");
 		var combat = new Combat(
 			party,
 			monsterFactory.getNewMonsterGroupForParty(party)
 		);
-
+		var combatTicks = 0;
 		while(combat.isOngoing())
 		{
+			combatTicks ++;
+			Game.combatFeedback('Combat tick ' + combatTicks);
 			combat.tick();
 		}
+		console.log("Combat concluded");
 	}
 	
 });

@@ -15,7 +15,6 @@ PartyMemberAttribute.prototype.increase = function(type)
 	var growthFactor = this.growthFactors[type];
 	var increase = this.current * growthFactor;
 	this.current += increase;
-	this.damage = 0;
 	this.increases.push({"type":type, "growthFactor":growthFactor, "amount":increase});
 	return this;
 };
