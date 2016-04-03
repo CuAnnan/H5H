@@ -24,6 +24,7 @@ function Combat(party, monsters)
 		this.firstStriker = this.party;
 		this.secondStriker = this.monsters;
 	}
+	$('#monstersLi').css('display', 'list-item');
 }
 
 Combat.prototype.isOngoing = function()
@@ -57,12 +58,24 @@ Combat.prototype.tick = function()
 	
 	if(!this.ongoing)
 	{
-		Game.combatFeedback("The combat ended in "+this.rounds+" rounds", 'combatFeedback');
-		if(this.party.isAlive())
-		{
-			this.party.addXP(this.monsters.getXPReward());
-		};
+		this.endCombat();
 	}
 	
 	return this;
 };
+
+
+Combat.prototype.endCombat = function()
+{
+	Game.combatFeedback("The combat ended in "+this.rounds+" rounds", 'combatFeedback');
+	$('#monstersLi').css('display', 'none');
+	if(this.party.isAlive())
+	{
+		this.party.addXP(this.monsters.getXPReward());
+	}
+	else
+	{
+		Game.RFED();
+	}
+	Game.save();
+}

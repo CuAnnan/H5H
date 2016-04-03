@@ -8,10 +8,10 @@
  * object to allow easy callbacks to things that need string-based callbacks.
  */
 var Game = {
-	MINIMUM_CELL_SIZE: 10,
+	MINIMUM_CELL_SIZE:10,
 	MINIMUM_COLUMN_COUNT: 5,
 	TICK_DELAY: 500,
-	MAZES_PER_SIZE: 5,
+	MAZES_PER_SIZE: 1,
 	init: function (data)
 	{
 		this.mazeElement = data.mazeElement;
@@ -28,6 +28,15 @@ var Game = {
 		this.calculateMazeCellSizes();
 		this.ticking = true;
 		return this;
+		this.$dialog = $('#RFIDSplash').dialog({
+			autoOpen: false,
+			height: 300,
+			width: 350,
+			modal: true,
+			buttons: {
+				"Prestige": this.prestige,
+			}
+		});
 	},
 	newGame: function ()
 	{
@@ -37,6 +46,7 @@ var Game = {
 	},
 	load: function ()
 	{
+		return false;
 		var data = localStorage.getItem('saveState');
 		if(!data)
 		{
@@ -59,13 +69,15 @@ var Game = {
 		var json = {
 			mazesAtThisCellCount: this.mazesAtThisCellCount - 1,
 			columnSizeIndex:this.columnSizeIndex,
-			currentMaze:this.maze.toJSON()
+			currentMaze:this.maze.toJSON(),
+			party:this.party.toJSON()
 		};
 		var jsonString = JSON.stringify(json);
 		localStorage.setItem('saveState', btoa(jsonString));
 	},
 	loadMapFromJSON: function(json)
 	{
+		console.log("Loading map from JSON");
 		this.addMaze(
 			new Maze(
 				this.mazeElement,
@@ -118,6 +130,7 @@ var Game = {
 		{
 			this.mazesAtThisCellCount = 0;
 			this.columnSizeIndex++;
+			console.log('This is where we add a new member');
 			this.party.addMember();
 			if (this.columnSizeIndex >= this.columnCounts.length)
 			{
@@ -126,7 +139,6 @@ var Game = {
 		}
 		this.mazesAtThisCellCount++;
 		this.mazesExplored++;
-
 		this.addMaze(
 			new Maze(
 				this.mazeElement,
@@ -208,5 +220,10 @@ var Game = {
 		var node = $('<div class="'+cssClass+'">'+html+'</div>');
 		var combatFeedbackNode = $('#combat');
 		combatFeedbackNode.append(node).scrollTop(combatFeedbackNode.prop("scrollHeight"));
-	}
+	},
+	RFED:function()
+	{
+		// party has been completely knocked out (Rocks Fall Everyone Die(s/d))
+		this.stop();
+	},
 };

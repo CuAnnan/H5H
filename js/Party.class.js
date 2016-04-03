@@ -6,18 +6,10 @@ var Game = Game ? Game : {};
  */
 function Party(members)
 {
-	if(members)
-	{
-		for(var i in members)
-		{
-			this.addMember(members[i]);
-		}
-	}
-	else
-	{
-		this.addMember(new PartyMember());
-	}
-	this.setToken('party');
+	this.fbClasses = {
+		'exploration':'explorationFeedback',
+		'combat':'combatFeedback',
+	};
 	
 	// used for the interval
 	this.processTicks = false;
@@ -84,6 +76,26 @@ function Party(members)
 	 * The route being taken in exploring.
 	 */
 	this.exposeRoute;
+	
+	/**
+	 * the HTML node id being used to represent the party
+	 * This is inherited from AttackerGroup and defined here
+	 */
+	this.nodeId = '#party';
+	
+	if(members)
+	{
+		for(var i in members)
+		{
+			this.addMember(members[i]);
+		}
+	}
+	else
+	{
+		this.addMember(new PartyMember());
+	}
+	this.setToken('party');
+
 }
 
 Party.prototype = new AttackerGroup();
@@ -92,11 +104,9 @@ Party.prototype.constructor = Party;
 Party.prototype.addMember = function (member)
 {
 	member = member?member:new PartyMember();
-	if(member instanceof PartyMember)
-	{
-		this.members.push(member);
-	}
-	$('#party').append(member.getElement());
+	console.log(member);
+	this.members.push(member);
+	this.updateNode();
 	return this;
 };
 
@@ -173,6 +183,7 @@ Party.prototype.searchForEndPoint = function ()
 	var unvisitedNeighbours = this.currentCell.getUnvisitedNeighbours();
 	if (unvisitedNeighbours.length > 0)
 	{
+		Game.feedback("Moving along the maze", this.fbClasses.exploration);
 		// we have an unvisited neighbour for the current cell.
 		// We should choose the first one from the list and visit that one.
 		var newCell = unvisitedNeighbours.pop();
@@ -182,7 +193,6 @@ Party.prototype.searchForEndPoint = function ()
 		this.currentCell = newCell;
 		if (newCell.isEndPoint)
 		{
-			this.route.push(this.currentCell);
 			this.endPointFound = true;
 			this.buildBackTrack();
 			this.addXP(Math.pow(Game.mazesExplored + 1, 2));
@@ -190,6 +200,7 @@ Party.prototype.searchForEndPoint = function ()
 	}
 	else
 	{
+		Game.feedback("Moving back along the route", this.fbClasses.exploration)
 		// the path has currently not yielded the end point so keep removing points from it until
 		// we get to a cell with unvisited neighbours and check them
 		var currentCell = this.currentCell,
@@ -215,7 +226,7 @@ Party.prototype.visitCell = function (cell)
 	cell.visit(this);
 	if(cell.hasMonsters())
 	{
-		Game.combatFeedback("The party stumbles across some monsters", 'feedback');
+		Game.feedback("The party stumbles across some monsters", this.fbClasses.combat);
 		this.combat = new Combat(this,cell.getMonsters());
 	}
 };
@@ -249,6 +260,7 @@ Party.prototype.exposeMap = function ()
 	var unvisitedNeighbours = this.currentCell.getUnvisitedNeighbours();
 	if (unvisitedNeighbours.length > 0)
 	{
+		Game.feedback('Exploring dead end', this.fbClasses.exploration);
 		// this part works exactly as the searchForEndPoint method
 		// except it adds to the exposeRoute method instead of the route method
 		var newCell = unvisitedNeighbours.pop();
@@ -263,6 +275,7 @@ Party.prototype.exposeMap = function ()
 		if (this.currentCell.isEndPoint)
 		{
 			this.exploring = false;
+			Game.feedback('Descending to next level', this.fbClasses.exploration);
 		}
 		else
 		{
@@ -270,10 +283,12 @@ Party.prototype.exposeMap = function ()
 			// the maze is currently explored so we just backtrack across the expose route until we're
 			// back at the starting cell
 			this.currentCell = this.exposeRoute.pop();
+			Game.feedback('Returning to exit', this.fbClasses.exploration);
 		}
 	}
 	else if (this.route.indexOf(this.currentCell) >= 0)
 	{
+		Game.feedback('Backtracking to explore map', this.fbClasses.exploration);
 		// The current cell is in the route that took us here, so we look to the next one in the route
 		var newCell = this.reversedRouteIterator.next().value[1];
 		this.exposeRoute.push(newCell);
@@ -299,8 +314,8 @@ Party.prototype.exposeMap = function ()
 
 Party.prototype.buildBackTrack = function ()
 {
-	this.exposeRoute = [];
-	this.reversedRouteIterator = this.route.slice().reverse().entries();
+	this.exposeRoute = [this.currentCell];
+	this.reversedRouteIterator = this.route.slice(0, -1).reverse().entries();
 };
 
 Party.prototype.tick = function ()
@@ -321,7 +336,6 @@ Party.prototype.tick = function ()
 	else if (this.exploring)
 	{
 		this.explore();
-		Game.combatFeedback("Party explores the map a little");
 	}
 	else
 	{
@@ -360,7 +374,7 @@ Party.prototype.toJSON = function()
 	
 	for(var i in this.members)
 	{
-		partyJSON.memebers[i] = this.members[i].toJSON();
+		partyJSON.members[i] = this.members[i].toJSON();
 	}
 	return partyJSON;
 };
@@ -369,9 +383,15 @@ Party.prototype.isAlive = function()
 {
 	for(var i in this.members)
 	{
-		if(this.members[i].isAlive())
+		var member = this.members[i];
+		var alive = member.isAlive();
+		console.log('Member '+(parseInt(i)+1)+(member.name+' is ')+(alive?'alive':'dead'));
+		console.log(member);
+		if(alive)
 		{
+			console.log(member.name+' is alive');
 			return true;
 		}
 	}
+	return false;
 };

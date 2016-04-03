@@ -9,6 +9,9 @@ function AttackerGroup()
 	this.members = [];
 	this.alive = true;
 	this.firstAttacker = false;
+	/**
+	 * A text field used to help in feedback
+	 */
 	this.token = '';
 }
 
@@ -20,12 +23,25 @@ AttackerGroup.prototype.setToken = function(token)
 AttackerGroup.prototype.addMember = function(member)
 {
 	this.members.push(member);
+	this.updateNode();
 	return this;
 };
 
 AttackerGroup.prototype.isFirstAttacker = function()
 {
 	return this.firstAttacker;
+};
+
+AttackerGroup.prototype.updateNode = function()
+{
+	var node = $(this.nodeId).empty();
+	for(var i in this.members)
+	{
+		var i = parseInt(i);
+		var member = this.members[i];
+		console.log("Adding node for member "+(i+1))
+		node.append(member.getElement());
+	}
 };
 
 AttackerGroup.prototype.takeDamage = function(totalAmount)
@@ -36,11 +52,12 @@ AttackerGroup.prototype.takeDamage = function(totalAmount)
 	this.alive = false
 	for(var i in this.members)
 	{
-		this.members[i].takeDamage(memberAmount);
-		if(this.members[i].isAlive())
+		var member = this.members[i];
+		member.takeDamage(memberAmount);
+		if(member.isAlive())
 		{
-			this.hpLeft += this.members[i].getRemainingHP();
-			this.totalHp += this.members[i].attributes.hp.getValue();
+			this.hpLeft += member.getRemainingHP();
+			this.totalHp += member.attributes.hp.getValue();
 			this.alive = true;
 		}
 	};
@@ -69,7 +86,7 @@ AttackerGroup.prototype.isAlive = function()
 AttackerGroup.prototype.attack = function(target)
 {
 	target.takeDamage(this.calculateDPS());
-	this.roundText = 'The '+this.token+' do '+parseInt(this.roundDPS)+' damage to '+target.token+'('+parseInt(target.hpLeft)+'/'+parseInt(target.totalHp)+'hp)';
+	this.roundText = 'The '+this.token+' do '+parseInt(this.roundDPS)+' damage to the '+target.token;
 	return this;
 };
 

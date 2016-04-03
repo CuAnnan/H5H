@@ -10,7 +10,7 @@ var Game = Game?Game:{};
 			"Tram", "Imp", "Goblin", "Zombie", "Vampire", "Werewolf", "Ghoul",
 			"Djin", "Fairy", "Elf", "Pixie", "Spirit", "Ghost", "Sprite"
 		],
-		boss:["Bad Juju", "Scarecrow", "Zapud"],
+		boss:["Bad Juju", "Scarecrow", "Zapud", "Kaoleth", "Wazaq"],
 		prefix:["Dark", "Angry", "Enraged", "Supreme", "Grand"],
 		suffix:["Lord", "King", "Prince", "Knight", "Queen"]
 	};
@@ -57,6 +57,7 @@ var Game = Game?Game:{};
 	{
 		var monsterGroup = new AttackerGroup();
 		monsterGroup.setToken('monsters');
+		monsterGroup.nodeId = '#monsters';
 		
 		var size = party.members.length;
 		
@@ -65,7 +66,7 @@ var Game = Game?Game:{};
 		{
 			monsterGroup.addMember(this.getSingleMonster());
 		};
-		
+		monsterGroup.updateNode();
 		return monsterGroup;
 	};
 	
@@ -79,6 +80,7 @@ var Game = Game?Game:{};
 			'dps': new PartyMemberAttribute(6 + 2 * this.eliteness, 0.6 + 0.2 * this.eliteness)
 		};
 		var level = data.level?data.level:Game.mazesExplored+1;
+		this.level = 1;
 		for(var i = 1; i < level; i++)
 		{
 			this.levelUp();
@@ -111,11 +113,51 @@ var Game = Game?Game:{};
 	
 	Monster.prototype.getXPReward = function()
 	{
-		var xpAward = this.level * 10;
-		xpAward += Math.floor(Math.random() * xpAward);
+		var xpAward = this.level * 5;
+		xpAward += Math.floor(xpAward + Math.random() * xpAward / 2);
 		return xpAward;
 	};
 	
+	Monster.prototype.getElement = function()
+	{
+		if(this.element)
+		{
+			return this.element;
+		}
+		this.element = $('<li/>');
+		// build up the complex list element and use classes within this.element and $ to access them
+		$('<ul/>').append(
+			$('<li/>').text('Name: '+this.name)
+		).append(
+			$('<li/>').append(
+				$('<span/>').text('HP: ')
+			).append(
+				$('<span/>')
+					.text(this.attributes.hp.getRemaining())
+					.addClass('hpRemainingNode')
+					.addClass('partyMemberAttribute')
+			).append(
+				$('<span/>').text('/')
+			).append(
+				$('<span/>')
+					.text(this.attributes.hp.getValue())
+					.addClass('hpTotalNode')
+					.addClass('partyMemberAttribute')
+			)
+		).append(
+			$('<li/>').append(
+				$('<span/>').text('Level: ')
+			).append(
+				$('<span/>').text(this.level).addClass('memberLevel')
+			)
+		).appendTo(this.element);
+		return this.element;
+	};
+	
+	Monster.prototype.updateElement = function()
+	{
+		$('.hpRemainingNode', this.element).text(parseInt(this.attributes.hp.getRemaining()));
+	};
 	
 	window.Monster = Monster;
 	window.MonsterFactory = MonsterFactory;
