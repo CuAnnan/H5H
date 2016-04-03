@@ -3,6 +3,10 @@
  * This code remains the intellectual property of Éamonn "Wing" Kearns
  */
 
+/**
+ * This is the container for the game, it acts both as a namespace and as an
+ * object to allow easy callbacks to things that need string-based callbacks.
+ */
 var Game = {
 	MINIMUM_CELL_SIZE: 10,
 	MINIMUM_COLUMN_COUNT: 5,
@@ -175,16 +179,31 @@ var Game = {
 	{
 		return array[Math.floor(Math.random() * array.length)];
 	},
-	combatFeedback:function(textNodes, cssClass)
+	combatFeedback:function(toShow, cssClass)
+	{
+		cssClass = cssClass?cssClass:'';
+		cssClass += ' combat';
+		this.feedback(toShow);
+	},
+	feedback:function(toShow, cssClass)
 	{
 		var html = '';
-		if(typeof textNodes === "string")
+		
+		// no point in repeating, so check if we would be repeating and, if so,
+		// skip this outright
+		if(toShow === this.lastFeedbackThing)
 		{
-			textNodes = [textNodes];
+			return;
 		}
-		for(var i in textNodes)
+		this.lastFeedbackThing = toShow;
+		
+		if(typeof toShow === "string")
 		{
-			html += '<div>'+textNodes[i]+'</div>';
+			toShow = [toShow];
+		}
+		for(var i in toShow)
+		{
+			html += '<div>'+toShow[i]+'</div>';
 		}
 		var node = $('<div class="'+cssClass+'">'+html+'</div>');
 		var combatFeedbackNode = $('#combat');
