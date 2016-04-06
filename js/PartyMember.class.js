@@ -39,12 +39,17 @@ function()
 		{
 			throw new {'message': ''};
 		}
+		this.attributes = {
+			'hp': new PartyMemberAttribute(100),
+			'dps': new PartyMemberAttribute(10)
+		};
+		this.level = 1;
 		this.xpModifier = this.baseXPModifier;
 		this.xp = data.xp ? data.xp : 0;
 		this.xpToLevel = 10;
 		this.levelStep = 10;
-		this.calculateLevel();
-		return this;
+		this.level = this.calculateLevel();
+		this.hash = this.generateHash();
 	}
 
 	
@@ -68,12 +73,11 @@ function()
 		this.level++;
 		this.xpToLevel += this.level * this.levelStep;
 		this.updateElement();
-		Game.combatFeedback(this.name + ' reached level '+this.level);
+		Game.feedback(this.name + ' reached level '+this.level, 'party');
 	};
 
 	PartyMember.prototype.addXP = function (amount)
 	{
-		console.log("Added "+amount+" xp");
 		this.xp += amount * this.xpModifier;
 		this.calculateLevel();
 		return this;
@@ -85,7 +89,7 @@ function()
 		{
 			return this.element;
 		}
-		this.element = $('<li/>');
+		this.element = $('<li/>').data('party-member', this.name).attr('id', this.hash);
 		// build up the complex list element and use classes within this.element and $ to access them
 		$('<ul/>').append(
 			$('<li/>').text('Name: '+this.name)
@@ -94,6 +98,24 @@ function()
 				$('<span/>').text('Class: ')
 			).append(
 				$('<span/>').text(this.class).addClass('memberClass')
+			)
+		).append(
+			$('<li/>').append(
+				$('<span/>').text('HP: ')
+			).append(
+				$('<span/>')
+					.text(this.attributes.hp.getRemaining())
+					.addClass('hpRemainingNode')
+					.addClass('partyMemberAttribute')
+					.addClass(this.name)
+			).append(
+				$('<span/>').text('/')
+			).append(
+				$('<span/>')
+					.text(this.attributes.hp.getValue())
+					.addClass('hpTotalNode')
+					.addClass('partyMemberAttribute')
+					.addClass(this.name)
 			)
 		).append(
 			$('<li/>').append(
@@ -107,8 +129,11 @@ function()
 	
 	PartyMember.prototype.updateElement = function()
 	{
-		$('.memberClass', this.element).text(this.class);
-		$('.memberLevel', this.element).text(this.level);
+		var elem = $('#'+this.hash);
+		var classNode = $('.memberClass', elem).text(this.class);
+		var levelNode = $('.memberLevel', elem).text(this.level);
+		var hpNode = $('.hpRemainingNode', elem).text(parseInt(this.attributes.hp.getRemaining()));
+		var hpTotalNode = $('.hpTotalNode', elem).text(parseInt(this.attributes.hp.getValue()));
 	};
 	
 	PartyMember.prototype.toJSON = function()
@@ -121,8 +146,23 @@ function()
 		};
 		for(var i in this.attributes)
 		{
-			data[i] = this.attributes[i].toJSON();
+			data.attributes[i] = this.attributes[i].toJSON();
 		}
+		return data;
+	};
+	
+	PartyMember.prototype.generateHash = function()
+	{
+		var json = this.toJSON();
+		json.now = Date.now();
+		var jsonString = JSON.stringify(json);
+		var hash = jsonString.hashCode();
+		return hash;
+	};
+	
+	PartyMember.prototype.getLevel = function()
+	{
+		return this.level;
 	};
 	
 	window.PartyMember = PartyMember;

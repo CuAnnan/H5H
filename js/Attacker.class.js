@@ -5,16 +5,16 @@
  */
 function Attacker()
 {
-	this.attributes = {
-		'hp': new PartyMemberAttribute(100),
-		'dps': new PartyMemberAttribute(10)
-	};
-	this.level = 1;
 }
 
 Attacker.prototype.takeDamage = function(amount)
 {
 	this.attributes.hp.applyDamage(amount);
+	this.updateElement();
+};
+
+Attacker.prototype.updateElement = function()
+{	
 };
 
 Attacker.prototype.getDPS = function()

@@ -37,3 +37,8 @@ This code remains the intellectual property of Éamonn "Wing" Kearns
 	height: 500px;
 	width:  500px;
 }
+
+#monstersLi
+{
+	display:none;
+}

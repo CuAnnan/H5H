@@ -322,6 +322,7 @@ Maze.prototype.setStartAndEndPoints = function()
 	while(!endPoint)
 	{
 		var cell = this.cells[i][j];
+		
 		if(cell.isDeadEnd() && cell.x != startPoint.x && cell.y != startPoint.y)
 		{
 			cell.setEndPoint();
