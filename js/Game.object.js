@@ -11,7 +11,8 @@ var Game = {
 	MINIMUM_CELL_SIZE:10,
 	MINIMUM_COLUMN_COUNT: 5,
 	TICK_DELAY: 500,
-	MAZES_PER_SIZE: 1,
+	MAZES_PER_SIZE: 2,
+	VERSION: '0.0.1a',
 	init: function (data)
 	{
 		this.mazeElement = data.mazeElement;
@@ -28,7 +29,7 @@ var Game = {
 		this.calculateMazeCellSizes();
 		this.ticking = true;
 		return this;
-		this.$dialog = $('#RFIDSplash').dialog({
+		this.prestigeDialog = $('#RFIDSplash').dialog({
 			autoOpen: false,
 			height: 300,
 			width: 350,
@@ -67,6 +68,7 @@ var Game = {
 	save: function()
 	{
 		var json = {
+			gameVersion: this.VERSION,
 			mazesAtThisCellCount: this.mazesAtThisCellCount - 1,
 			columnSizeIndex:this.columnSizeIndex,
 			currentMaze:this.maze.toJSON(),
@@ -126,19 +128,18 @@ var Game = {
 	},
 	createNewMaze: function ()
 	{
-		if (this.mazesAtThisCellCount++ >= this.MAZES_PER_SIZE)
+		console.log("This is where we choose what size the map should be");
+		console.log(this.mazesAtThisCellCount, this.MAZES_PER_SIZE);
+		if (this.mazesAtThisCellCount >= this.MAZES_PER_SIZE)
 		{
 			this.mazesAtThisCellCount = 0;
 			this.columnSizeIndex++;
-			console.log('This is where we add a new member');
 			this.party.addMember();
 			if (this.columnSizeIndex >= this.columnCounts.length)
 			{
 				this.columnSizeIndex = this.columnCounts.length - 1;
 			}
 		}
-		this.mazesAtThisCellCount++;
-		this.mazesExplored++;
 		this.addMaze(
 			new Maze(
 				this.mazeElement,
@@ -176,8 +177,12 @@ var Game = {
 		this.party.start();
 		if (!this.party.exploring)
 		{
+			console.log('Creating new maze');
+			this.mazesExplored++;
+			this.mazesAtThisCellCount ++;
 			this.createNewMaze();
 		}
+		
 		var self = this;
 		setTimeout(
 			function ()
@@ -225,5 +230,6 @@ var Game = {
 	{
 		// party has been completely knocked out (Rocks Fall Everyone Die(s/d))
 		this.stop();
+		this.prestigeDialog.dialog("open");
 	},
 };

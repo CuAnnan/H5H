@@ -23,14 +23,13 @@ var Game = Game?Game:{};
 	
 	MonsterFactory.prototype.init = function(data)
 	{
-		this.monsterName = data.name?data.name:Game.randomArrayElement(names.monster);
 		this.monsterLevel = data.level?data.level:Game.mazesExplored+1;
 	};
 	
 	MonsterFactory.prototype.getSingleMonster = function()
 	{
 		return new Monster({
-			name:this.monsterName,
+			name:Game.randomArrayElement(names.monster),
 			level:this.monsterLevel
 		});
 	};
@@ -38,7 +37,7 @@ var Game = Game?Game:{};
 	MonsterFactory.prototype.getSingleEliteMonster = function()
 	{
 		return new Monster({
-			name:Game.randomArrayElement(names.prefix)+' '+this.monsterName,
+			name:Game.randomArrayElement(names.prefix)+' '+Game.randomArrayElement(names.monster),
 			level:this.monsterLevel,
 			eliteness:1
 		});
@@ -47,7 +46,7 @@ var Game = Game?Game:{};
 	MonsterFactory.prototype.getSingleEpicMonster = function()
 	{
 		return new Monster({
-			name:Game.randomArrayElement(names.prefix)+' '+this.monsterName+' '+Game.randomArrayElement(names.suffix),
+			name:Game.randomArrayElement(names.prefix)+' '+Game.randomArrayElement(names.monster)+' '+Game.randomArrayElement(names.suffix),
 			level:this.monsterLevel,
 			eliteness:1
 		});
@@ -59,12 +58,33 @@ var Game = Game?Game:{};
 		monsterGroup.setToken('monsters');
 		monsterGroup.nodeId = '#monsters';
 		
-		var size = party.members.length;
+		var size = party.getSize();
 		
+		this.monsterLevel = Game.mazesExplored * 3 + 1;
+		var monsterToFetch = this.getSingleMonster;
+		
+		var partyLevel = party.getAverageLevel();
+		var levelDifference =  partyLevel - this.monsterLevel;
+		var monsterLevelOffset = Math.floor(levelDifference / 4);
+		
+		if(levelDifference > 0)
+		{
+			console.log('Level difference ('+partyLevel+ ' - '+this.monsterLevel+') : '+levelDifference);
+			console.log('Monster level offset: ' + monsterLevelOffset);
+			this.monsterLevel += monsterLevelOffset;
+			if(monsterLevelOffset > 1)
+			{
+				monsterToFetch = this.getSingleEpicMonster;
+			}
+			else if (monsterLevelOffset > 0)
+			{
+				monsterToFetch = this.getSingleEliteMonster;
+			}
+		}
 		
 		for(var i = 0; i < size; i++)
 		{
-			monsterGroup.addMember(this.getSingleMonster());
+			monsterGroup.addMember(monsterToFetch());
 		};
 		monsterGroup.updateNode();
 		return monsterGroup;
@@ -79,12 +99,13 @@ var Game = Game?Game:{};
 			'hp': new PartyMemberAttribute(60 + 20 * this.eliteness, 0.2 + 0.2 * this.eliteness),
 			'dps': new PartyMemberAttribute(6 + 2 * this.eliteness, 0.6 + 0.2 * this.eliteness)
 		};
-		var level = data.level?data.level:Game.mazesExplored+1;
+		var levelToBe = data.level?data.level:Game.mazesExplored+1;
 		this.level = 1;
-		for(var i = 1; i < level; i++)
+		for(var i = 1; i < levelToBe; i++)
 		{
 			this.levelUp();
 		}
+		console.log(this.level);
 	}
 	
 	Monster.prototype = new Attacker();

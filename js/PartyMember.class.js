@@ -129,7 +129,6 @@ function()
 	
 	PartyMember.prototype.updateElement = function()
 	{
-		console.log('Updating element for '+this.name);
 		var elem = $('#'+this.hash);
 		var classNode = $('.memberClass', elem).text(this.class);
 		var levelNode = $('.memberLevel', elem).text(this.level);
@@ -158,8 +157,12 @@ function()
 		json.now = Date.now();
 		var jsonString = JSON.stringify(json);
 		var hash = jsonString.hashCode();
-		console.log(hash);
 		return hash;
+	};
+	
+	PartyMember.prototype.getLevel = function()
+	{
+		return this.level;
 	};
 	
 	window.PartyMember = PartyMember;

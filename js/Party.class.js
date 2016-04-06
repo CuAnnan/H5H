@@ -104,7 +104,6 @@ Party.prototype.constructor = Party;
 Party.prototype.addMember = function (member)
 {
 	member = member?member:new PartyMember();
-	console.log(member);
 	this.members.push(member);
 	this.updateNode();
 	return this;
@@ -385,13 +384,25 @@ Party.prototype.isAlive = function()
 	{
 		var member = this.members[i];
 		var alive = member.isAlive();
-		console.log('Member '+(parseInt(i)+1)+(member.name+' is ')+(alive?'alive':'dead'));
-		console.log(member);
 		if(alive)
 		{
-			console.log(member.name+' is alive');
 			return true;
 		}
 	}
 	return false;
+};
+
+Party.prototype.getSize = function()
+{
+    return this.members.length;
+};
+
+Party.prototype.getAverageLevel = function()
+{
+	var totalLevels = 0;
+	for(var i in this.members)
+	{
+		totalLevels += this.members[i].getLevel();
+	}
+	return totalLevels / this.members.length;
 };
