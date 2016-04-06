@@ -26,9 +26,16 @@ var Game = Game?Game:{};
 		this.monsterLevel = data.level?data.level:Game.mazesExplored+1;
 	};
 	
+	MonsterFactory.prototype.getMonster = function(data)
+	{
+		console.log(data);
+		return new Monster(data);
+	};
+	
 	MonsterFactory.prototype.getSingleMonster = function()
 	{
-		return new Monster({
+		console.log(this);
+		return this.getMonster({
 			name:Game.randomArrayElement(names.monster),
 			level:this.monsterLevel
 		});
@@ -36,7 +43,7 @@ var Game = Game?Game:{};
 	
 	MonsterFactory.prototype.getSingleEliteMonster = function()
 	{
-		return new Monster({
+		return this.getMonster({
 			name:Game.randomArrayElement(names.prefix)+' '+Game.randomArrayElement(names.monster),
 			level:this.monsterLevel,
 			eliteness:1
@@ -45,10 +52,10 @@ var Game = Game?Game:{};
 	
 	MonsterFactory.prototype.getSingleEpicMonster = function()
 	{
-		return new Monster({
+		return this.getMonster({
 			name:Game.randomArrayElement(names.prefix)+' '+Game.randomArrayElement(names.monster)+' '+Game.randomArrayElement(names.suffix),
 			level:this.monsterLevel,
-			eliteness:1
+			eliteness:2
 		});
 	};
 	
@@ -60,25 +67,24 @@ var Game = Game?Game:{};
 		
 		var size = party.getSize();
 		
-		this.monsterLevel = Game.mazesExplored * 3 + 1;
-		var monsterToFetch = this.getSingleMonster;
+		this.monsterLevel = Game.mazesExplored * 2 + 1;
+		var monsterToFetch = this.getSingleMonster.bind(this);
 		
 		var partyLevel = party.getAverageLevel();
 		var levelDifference =  partyLevel - this.monsterLevel;
-		var monsterLevelOffset = Math.floor(levelDifference / 4);
+		var monsterLevelOffset = Math.floor(levelDifference / 5);
 		
-		if(levelDifference > 0)
+		if(monsterLevelOffset > 0)
 		{
-			console.log('Level difference ('+partyLevel+ ' - '+this.monsterLevel+') : '+levelDifference);
-			console.log('Monster level offset: ' + monsterLevelOffset);
 			this.monsterLevel += monsterLevelOffset;
+			
 			if(monsterLevelOffset > 1)
 			{
-				monsterToFetch = this.getSingleEpicMonster;
+				monsterToFetch = this.getSingleEpicMonster.bind(this);
 			}
 			else if (monsterLevelOffset > 0)
 			{
-				monsterToFetch = this.getSingleEliteMonster;
+				monsterToFetch = this.getSingleEliteMonster.bind(this);
 			}
 		}
 		
@@ -101,11 +107,13 @@ var Game = Game?Game:{};
 		};
 		var levelToBe = data.level?data.level:Game.mazesExplored+1;
 		this.level = 1;
+		console.log('Monster initialisation data:');
+		console.log(data);
 		for(var i = 1; i < levelToBe; i++)
 		{
 			this.levelUp();
 		}
-		console.log(this.level);
+		console.log('Monster level:' +this.level);
 	}
 	
 	Monster.prototype = new Attacker();

@@ -28,8 +28,7 @@ var Game = {
 		}
 		this.calculateMazeCellSizes();
 		this.ticking = true;
-		return this;
-		this.prestigeDialog = $('#RFIDSplash').dialog({
+		this.$prestigeDialog = $('#RFIDSplash').dialog({
 			autoOpen: false,
 			height: 300,
 			width: 350,
@@ -38,6 +37,11 @@ var Game = {
 				"Prestige": this.prestige,
 			}
 		});
+		this.$prestigePartySize = $('#prestigePartySize');
+		this.$prestigePartyMembers = $('#prestigePartyMembers');
+		this.$prestigeMazeLevel = $('#prestigeMazeLevel');
+		return this;
+		
 	},
 	newGame: function ()
 	{
@@ -230,6 +234,22 @@ var Game = {
 	{
 		// party has been completely knocked out (Rocks Fall Everyone Die(s/d))
 		this.stop();
-		this.prestigeDialog.dialog("open");
+		var $heroesUl = $('<ul/>');
+		for(var i in this.party.members)
+		{
+			$heroesUl.append(
+				$('<li/>').append(
+					$('<span>').text(
+						this.party.members[i].name+
+						' LVL '+this.party.members[i].level+
+						' '+this.party.members[i].class
+					)
+				)
+			);
+		}
+		$heroesUl.appendTo(this.$prestigePartyMembers);
+		this.$prestigePartySize.text(this.party.members.length);
+		this.$prestigeMazeLevel.text(this.mazesExplored);
+		this.$prestigeDialog.dialog("open");
 	},
 };
