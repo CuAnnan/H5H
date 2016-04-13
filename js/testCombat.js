@@ -22,7 +22,6 @@ $(function()
 	
 	while(party.isAlive())
 	{
-		console.log("Starting new combat");
 		var combat = new Combat(
 			party,
 			monsterFactory.getNewMonsterGroupForParty(party)
@@ -34,7 +33,6 @@ $(function()
 			Game.combatFeedback('Combat tick ' + combatTicks);
 			combat.tick();
 		}
-		console.log("Combat concluded");
 	}
 	
 });

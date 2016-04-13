@@ -131,7 +131,6 @@ Maze.prototype.setParty = function(party)
 
 Maze.prototype.populate = function()
 {
-	console.log("Populating with monsters");
 	var cells = [], mfCells = [];
 	for(var i = 0; i < this.cells.length; i++)
 	{
@@ -151,8 +150,6 @@ Maze.prototype.populate = function()
 	}
 	
 	var numberOfMonsters = Math.floor(this.monsterDensity * this.rows * this.cols);
-	console.log(this.monsterDensity, this.rows, this.cols, this.monsterDensity * this.rows * this.cols);
-	console.log(numberOfMonsters);
 	
 	for(var i = 0; i < numberOfMonsters; i++)
 	{

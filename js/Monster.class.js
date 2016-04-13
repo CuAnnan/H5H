@@ -180,8 +180,6 @@ var Game = Game?Game:{};
 	Monster.prototype.updateElement = function()
 	{
 		var hpLeft = parseInt(this.attributes.hp.getRemaining());
-		console.log("Should be updating the monster's hp to be "+hpLeft)
-		console.log("Should be looking for .hpRemainingNode in "+this.element)
 		$('.hpRemainingNode', this.element).text(hpLeft);
 	};
 	
