@@ -11,6 +11,8 @@ function Combat(party, monsters)
 	monsters.token = 'monsters';
 	this.ongoing = true;
 	this.rounds = 0;
+	this.party.updateNode();
+	this.monsters.updateNode();
 	
 	// determine order by defaulting to party as first striker
 	// and only swapping the order if the monsters have explicit first strike
@@ -25,6 +27,7 @@ function Combat(party, monsters)
 		this.secondStriker = this.monsters;
 	}
 	$('#monstersLi').css('display', 'list-item');
+	
 }
 
 Combat.prototype.isOngoing = function()

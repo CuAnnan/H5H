@@ -1,5 +1,5 @@
 "use strict";
-var SVGHelper = SVGHelper?SVGHelper:{};
+var SVGHelper = SVGHelper?SVGHelper:{}, Game = Game?Game:{};
 /**
  * 
  * @param {DOMElement}		elem	The node into which to embed the SVG.
@@ -41,7 +41,6 @@ Maze.prototype.deferredConstructor = function(elem, options)
 	this.monsterFactory = new MonsterFactory();
 	this.monsterDensity = options.monsterDensity?options.monsterDensity:0.4;
 	
-	
 	/*
 	 * Default the instance variables
 	 */
@@ -58,6 +57,10 @@ Maze.prototype.deferredConstructor = function(elem, options)
 	this.endPointColor = 'lightcoral';
 	this.visitedCellsCount = 0;
 	this.totalCellCount = rows * cols;
+	this.deadEndCells = [];
+	this.party = null;
+	
+	this.monsterPopulatedCells = [];
 	
 	this.setRows(rows).setCols(cols).setWidth().setHeight();
 	
@@ -69,7 +72,7 @@ Maze.prototype.deferredConstructor = function(elem, options)
 		{
 			var methodName = 'set'+i.ucFirst();
 			var method = this[methodName];
-			if(method && typeof method == 'function')
+			if(method && typeof method === 'function')
 			{
 				this[methodName](options[i]);
 			}
@@ -114,6 +117,51 @@ Maze.prototype.toJSON = function(populate)
 	}
 	return json;
 };
+
+/**
+ * Gives the maze object a reference to the party object
+ * @param {Party} party
+ * @returns {Maze}
+ */
+Maze.prototype.setParty = function(party)
+{
+	this.party = party;
+	return this;
+};
+
+Maze.prototype.populate = function()
+{
+	console.log("Populating with monsters");
+	var cells = [], mfCells = [];
+	for(var i = 0; i < this.cells.length; i++)
+	{
+		for(var j = 0; j < this.cells[i].length; j++)
+		{
+			cells.push(this.cells[i][j]);
+		}
+	}
+	
+	var randomCells = Game.randomizeArray(cells);
+	for(var i in randomCells)
+	{
+		if(cells[i].isNormal())
+		{
+			mfCells.push(cells[i]);
+		}
+	}
+	
+	var numberOfMonsters = Math.floor(this.monsterDensity * this.rows * this.cols);
+	console.log(this.monsterDensity, this.rows, this.cols, this.monsterDensity * this.rows * this.cols);
+	console.log(numberOfMonsters);
+	
+	for(var i = 0; i < numberOfMonsters; i++)
+	{
+		var cell = mfCells.pop();
+		cell.setMonsters(this.monsterFactory.getNewMonsterGroupForParty(this.party));
+		this.monsterPopulatedCells.push(cell);
+	}
+	return this;
+}
 
 /**
  * @param {int} width
@@ -211,15 +259,23 @@ Maze.prototype.build = function()
 			building = false;
 		}
 	}
+	// an array to hold monster friendly cells
 	
 	for(var i = 0; i < this.cols; i++)
 	{
 		for(var j = 0; j < this.rows; j++)
 		{
-			this.cells[i][j].visited = false;
+			var cell = this.cells[i][j];
+			cell.visited = false;
+			// a handy reference to all dead end cells to make picking
+			// the start and end points much easier.
+			cells.push(cell);
+			if(cell.isDeadEnd())
+			{
+				this.deadEndCells.push(cell);
+			}
 		}
 	}
-	
 	if(this.emptyCells > 0)
 	{
 		this.sparsify();
@@ -297,48 +353,9 @@ Maze.prototype.sparsify = function()
 
 Maze.prototype.setStartAndEndPoints = function()
 {
-	var endPoint = null, startPoint = null, i = 0, j = 0;
-	while(!startPoint)
-	{
-		var cell = this.cells[i][j];
-		if(cell.isDeadEnd())
-		{
-			cell.setStartPoint();
-			startPoint = cell;
-		}
-		else
-		{
-			i++;
-			if(i == this.cols)
-			{
-				j++;
-				i=0;
-			}
-		}
-	}
-	this.startPoint = startPoint;
-	
-	j = this.rows-1; i = this.cols-1;
-	while(!endPoint)
-	{
-		var cell = this.cells[i][j];
-		
-		if(cell.isDeadEnd() && cell.x != startPoint.x && cell.y != startPoint.y)
-		{
-			cell.setEndPoint();
-			endPoint = cell;
-		}
-		else
-		{
-			i--;
-			if(i == -1)
-			{
-				j--;
-				i = this.rows-1;
-			}
-		}
-	}
-	this.endPoint = endPoint;
+	var randomDeadEnds = Game.randomizeArray(this.deadEndCells);
+	this.startPoint = randomDeadEnds.pop().setStartPoint();
+	this.endPoint = randomDeadEnds.pop().setEndPoint();
 };
 
 Maze.prototype.initialise = function()

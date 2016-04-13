@@ -116,7 +116,7 @@ Party.prototype.chooseNewMaze = function (maze)
 	this.endPointFound = false;
 	this.svgElement = null;
 	this.route = [];
-	this.maze = maze;
+	this.maze = maze.setParty(this);
 	this.currentCell = this.maze.startPoint.visit();
 	this.draw();
 	return this;
@@ -222,7 +222,7 @@ Party.prototype.searchForEndPoint = function ()
 
 Party.prototype.visitCell = function (cell)
 {
-	cell.visit(this);
+	cell.visit();
 	if(cell.hasMonsters())
 	{
 		Game.feedback("The party stumbles across some monsters", this.fbClasses.combat);

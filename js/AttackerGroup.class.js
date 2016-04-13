@@ -39,7 +39,6 @@ AttackerGroup.prototype.updateNode = function()
 	{
 		var i = parseInt(i);
 		var member = this.members[i];
-		console.log("Adding node for member "+(i+1))
 		node.append(member.getElement());
 	}
 };
