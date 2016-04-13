@@ -264,7 +264,12 @@ Cell.prototype.hasMonsters = function()
 Cell.prototype.getMonsters = function()
 {
 	return this.monsters;
-}
+};
+
+Cell.prototype.setMonsters = function(monsters)
+{
+	this.monsters = monsters;
+};
 
 /**
  * Get the list of unvisited neighbours for the current cell.
@@ -294,17 +299,8 @@ Cell.prototype.hasUnvisitedNeighbours = function()
 	return unvisitedNeighbours.length > 0;
 };
 
-Cell.prototype.visit = function(party)
+Cell.prototype.visit = function()
 {
-	if(!this.isStartPoint && !this.isEndPoint)
-	{
-		var monsterTest = Math.random();
-		if(monsterTest < this.mazeReference.monsterDensity)
-		{
-			this.monsters = this.mazeReference.monsterFactory.getNewMonsterGroupForParty(party);
-		}
-	}
-
 	if(!this.visited)
 	{
 		this.show();
@@ -312,4 +308,9 @@ Cell.prototype.visit = function(party)
 	}
 	this.visited = true;
 	return this;
+};
+
+Cell.prototype.isNormal = function()
+{
+	return !(this.isEndPoint || this.isStartPoint);
 };

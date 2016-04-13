@@ -57,10 +57,7 @@ var Game = {
 		{
 			return false;
 		}
-		return this.parseSavedData(data);
-	},
-	parseSavedData: function(data)
-	{
+		
 		var json = JSON.parse(atob(data));
 		
 		// haven't written the party saving yet so just add a new party
@@ -83,15 +80,7 @@ var Game = {
 	},
 	loadMapFromJSON: function(json)
 	{
-		console.log("Loading map from JSON");
-		this.addMaze(
-			new Maze(
-				this.mazeElement,
-				json
-			).draw()
-		);
-		this.party.chooseNewMaze(this.maze);
-		return this;
+		
 	},
 	loadMapFromJSONString: function(jsonString)
 	{
@@ -132,8 +121,6 @@ var Game = {
 	},
 	createNewMaze: function ()
 	{
-		console.log("This is where we choose what size the map should be");
-		console.log(this.mazesAtThisCellCount, this.MAZES_PER_SIZE);
 		if (this.mazesAtThisCellCount >= this.MAZES_PER_SIZE)
 		{
 			this.mazesAtThisCellCount = 0;
@@ -154,6 +141,7 @@ var Game = {
 			).draw()
 		);
 		this.party.chooseNewMaze(this.maze);
+		this.maze.populate();
 		return this;
 	},
 	start: function ()
@@ -181,7 +169,6 @@ var Game = {
 		this.party.start();
 		if (!this.party.exploring)
 		{
-			console.log('Creating new maze');
 			this.mazesExplored++;
 			this.mazesAtThisCellCount ++;
 			this.createNewMaze();
@@ -199,6 +186,23 @@ var Game = {
 	randomArrayElement: function (array)
 	{
 		return array[Math.floor(Math.random() * array.length)];
+	},
+	randomizeArray: function(array)
+	{
+		 var currentIndex = array.length, temporaryValue, randomIndex;
+		
+		// While there remain elements to shuffle...
+		while (0 !== currentIndex)
+		{
+			// Pick a remaining element...
+			randomIndex = Math.floor(Math.random() * currentIndex);
+			currentIndex -= 1;
+			// And swap it with the current element.
+			temporaryValue = array[currentIndex];
+			array[currentIndex] = array[randomIndex];
+			array[randomIndex] = temporaryValue;
+		}
+		return array;
 	},
 	combatFeedback:function(toShow, cssClass)
 	{

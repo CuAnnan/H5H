@@ -28,13 +28,11 @@ var Game = Game?Game:{};
 	
 	MonsterFactory.prototype.getMonster = function(data)
 	{
-		console.log(data);
 		return new Monster(data);
 	};
 	
 	MonsterFactory.prototype.getSingleMonster = function()
 	{
-		console.log(this);
 		return this.getMonster({
 			name:Game.randomArrayElement(names.monster),
 			level:this.monsterLevel
@@ -64,7 +62,6 @@ var Game = Game?Game:{};
 		var monsterGroup = new AttackerGroup();
 		monsterGroup.setToken('monsters');
 		monsterGroup.nodeId = '#monsters';
-		
 		var size = party.getSize();
 		
 		this.monsterLevel = Game.mazesExplored * 2 + 1;
@@ -107,13 +104,10 @@ var Game = Game?Game:{};
 		};
 		var levelToBe = data.level?data.level:Game.mazesExplored+1;
 		this.level = 1;
-		console.log('Monster initialisation data:');
-		console.log(data);
 		for(var i = 1; i < levelToBe; i++)
 		{
 			this.levelUp();
 		}
-		console.log('Monster level:' +this.level);
 	}
 	
 	Monster.prototype = new Attacker();
@@ -185,7 +179,10 @@ var Game = Game?Game:{};
 	
 	Monster.prototype.updateElement = function()
 	{
-		$('.hpRemainingNode', this.element).text(parseInt(this.attributes.hp.getRemaining()));
+		var hpLeft = parseInt(this.attributes.hp.getRemaining());
+		console.log("Should be updating the monster's hp to be "+hpLeft)
+		console.log("Should be looking for .hpRemainingNode in "+this.element)
+		$('.hpRemainingNode', this.element).text(hpLeft);
 	};
 	
 	window.Monster = Monster;
