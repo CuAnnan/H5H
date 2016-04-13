@@ -32,16 +32,13 @@ var Game = {
 			autoOpen: false,
 			height: 300,
 			width: 350,
-			modal: true,
-			buttons: {
-				"Prestige": this.prestige,
-			}
+			modal: true
 		});
 		this.$prestigePartySize = $('#prestigePartySize');
 		this.$prestigePartyMembers = $('#prestigePartyMembers');
 		this.$prestigeMazeLevel = $('#prestigeMazeLevel');
-		return this;
-		
+		this.$prestigeEarned = $('#prestigeEarned');
+		this.prestige = 0;
 	},
 	newGame: function ()
 	{
@@ -51,7 +48,6 @@ var Game = {
 	},
 	load: function ()
 	{
-		return false;
 		var data = localStorage.getItem('saveState');
 		if(!data)
 		{
@@ -59,7 +55,8 @@ var Game = {
 		}
 		
 		var json = JSON.parse(atob(data));
-		
+		console.log(json);
+		return false;
 		// haven't written the party saving yet so just add a new party
 		this.addParty();
 		this.loadMapFromJSON(json.currentMaze);
@@ -73,7 +70,8 @@ var Game = {
 			mazesAtThisCellCount: this.mazesAtThisCellCount - 1,
 			columnSizeIndex:this.columnSizeIndex,
 			currentMaze:this.maze.toJSON(),
-			party:this.party.toJSON()
+			party:this.party.toJSON(),
+			prestige: this.prestige,
 		};
 		var jsonString = JSON.stringify(json);
 		localStorage.setItem('saveState', btoa(jsonString));
@@ -189,6 +187,7 @@ var Game = {
 	},
 	randomizeArray: function(array)
 	{
+		// https://github.com/coolaj86/knuth-shuffle
 		 var currentIndex = array.length, temporaryValue, randomIndex;
 		
 		// While there remain elements to shuffle...
@@ -239,21 +238,26 @@ var Game = {
 		// party has been completely knocked out (Rocks Fall Everyone Die(s/d))
 		this.stop();
 		var $heroesUl = $('<ul/>');
+		var prestige = this.mazesExplored * 5;
 		for(var i in this.party.members)
 		{
+			var member = this.party.members[i];
 			$heroesUl.append(
 				$('<li/>').append(
 					$('<span>').text(
-						this.party.members[i].name+
-						' LVL '+this.party.members[i].level+
-						' '+this.party.members[i].class
+						member.name+
+						' LVL '+member.level+
+						' '+member.class
 					)
 				)
 			);
+			prestige += member.level;
 		}
+		
 		$heroesUl.appendTo(this.$prestigePartyMembers);
 		this.$prestigePartySize.text(this.party.members.length);
 		this.$prestigeMazeLevel.text(this.mazesExplored);
+		this.$prestigeEarned.text(prestige);
 		this.$prestigeDialog.dialog("open");
 	},
 };
