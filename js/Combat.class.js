@@ -5,6 +5,7 @@
  */
 function Combat(party, monsters)
 {
+	console.log('Starting a new combat');
 	this.party = party;
 	party.token = 'party';
 	this.monsters = monsters;
@@ -71,9 +72,9 @@ Combat.prototype.tick = function()
 Combat.prototype.endCombat = function()
 {
 	Game.combatFeedback("The combat ended in "+this.rounds+" rounds", 'combatFeedback');
+	$('#monstersLi').css('display', 'none');
 	if(this.party.isAlive())
 	{
-		$('#monstersLi').css('display', 'none');
 		this.party.addXP(this.monsters.getXPReward());
 	}
 	else

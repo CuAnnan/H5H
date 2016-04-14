@@ -16,12 +16,7 @@ var Game = {
 	init: function (data)
 	{
 		this.mazeElement = data.mazeElement;
-		this.parties = [];
-		this.mazes = [];
-		this.mazesAtThisCellCount = 0;
-		this.columnSizeIndex = 0;
 		this.columnCounts = [];
-		this.mazesExplored = 0;
 		if (!this.load())
 		{
 			this.newGame();
@@ -39,9 +34,15 @@ var Game = {
 		this.$prestigeMazeLevel = $('#prestigeMazeLevel');
 		this.$prestigeEarned = $('#prestigeEarned');
 		this.prestige = 0;
+		this.timeoutRef = null;
 	},
 	newGame: function ()
 	{
+		this.mazesAtThisCellCount = 0;
+		this.columnSizeIndex = 0;
+		this.mazesExplored = 0;
+		$('#party').empty();
+		$('#monsters').empty();
 		// add a new party and build a new map
 		this.addParty();
 		this.createNewMaze();
@@ -87,7 +88,6 @@ var Game = {
 	addMaze: function (maze)
 	{
 		this.maze = maze;
-		
 		return this;
 	},
 	addParty: function (party)
@@ -119,6 +119,7 @@ var Game = {
 	},
 	createNewMaze: function ()
 	{
+		console.log(this.mazesAtThisCellCount, this.MAZES_PER_SIZE);
 		if (this.mazesAtThisCellCount >= this.MAZES_PER_SIZE)
 		{
 			this.mazesAtThisCellCount = 0;
@@ -150,20 +151,28 @@ var Game = {
 	},
 	stop: function ()
 	{
+		console.log('Should be stopping game');
 		this.processTicks = false;
+		if(this.timeoutRef)
+		{
+			clearTimeout(this.timeoutRef);
+			this.party.stop();
+			this.timeoutRef = null;
+		}
 		return this;
 	},
 	tick: function ()
 	{
+		console.log('Ticking game', this.processTicks);
 		$('#mazesExplored').text(this.mazesExplored);
 		$('#mazeCells').text(this.maze.getCellCount());
 		$('#partyAction').text(this.party.action);
 		
 		if (!this.processTicks)
 		{
-			this.party.stop();
 			return;
 		}
+		
 		this.party.start();
 		if (!this.party.exploring)
 		{
@@ -173,7 +182,7 @@ var Game = {
 		}
 		
 		var self = this;
-		setTimeout(
+		this.timeoutRef = setTimeout(
 			function ()
 			{
 				self.tick();
@@ -237,6 +246,8 @@ var Game = {
 	{
 		// party has been completely knocked out (Rocks Fall Everyone Die(s/d))
 		this.stop();
+		$('#exploreButton').val('Explore');
+		this.party.stop();
 		var $heroesUl = $('<ul/>');
 		var prestige = this.mazesExplored * 5;
 		for(var i in this.party.members)
@@ -259,5 +270,8 @@ var Game = {
 		this.$prestigeMazeLevel.text(this.mazesExplored);
 		this.$prestigeEarned.text(prestige);
 		this.$prestigeDialog.dialog("open");
+		this.party = null;
+		this.maze = null;
+		this.newGame();
 	},
 };

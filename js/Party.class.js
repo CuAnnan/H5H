@@ -10,6 +10,7 @@ function Party(members)
 		'exploration':'explorationFeedback',
 		'combat':'combatFeedback',
 	};
+	console.log(members);
 	
 	// used for the interval
 	this.processTicks = false;
@@ -21,6 +22,8 @@ function Party(members)
 	this.level = 1;
 	this.xpToLevel = 100;
 	this.levelStep = 100;
+	
+	this.members = [];
 
 	/**
 	 * Party modes.
@@ -105,6 +108,7 @@ Party.prototype.addMember = function (member)
 {
 	member = member?member:new PartyMember();
 	this.members.push(member);
+	console.log(this.members);
 	this.updateNode();
 	return this;
 };
@@ -319,6 +323,7 @@ Party.prototype.buildBackTrack = function ()
 
 Party.prototype.tick = function ()
 {
+	console.log('Ticking party');
 	if (!this.processTicks)
 	{
 		return;
@@ -329,6 +334,7 @@ Party.prototype.tick = function ()
 		this.combat.tick();
 		if(this.combat.isFinished())
 		{
+			console.log('Ending combat');
 			this.combat = null;
 		}
 	}
